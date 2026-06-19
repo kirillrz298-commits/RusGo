@@ -26,6 +26,22 @@ document.addEventListener('DOMContentLoaded', () => {
         return token ? { 'Authorization': `Bearer ${token}` } : {};
     }
 
+    function mapServerStateToLocal(serverState) {
+        if (!serverState) return { ...DEFAULT_STATE };
+        return {
+            xp: serverState.xp || 0,
+            gems: serverState.gems || 0,
+            streak: serverState.streak || 0,
+            lessonsCompleted: serverState.completed_levels || [],
+            weeklyProgress: serverState.weekly_progress || [0, 0, 0, 0, 0, 0, 0],
+            unlockedAchievements: serverState.unlocked_achievements || [],
+            ttsEnabled: serverState.settings ? !!serverState.settings.ttsEnabled : true,
+            username: serverState.username || '',
+            avatar: serverState.avatar || '👤',
+            id: serverState.id
+        };
+    }
+
     async function checkServerConnection() {
         const token = localStorage.getItem('rusgo_auth_token');
         if (!token) {
@@ -39,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.ok) {
                 isOnlineMode = true;
                 const serverState = await res.json();
-                state = serverState;
+                state = mapServerStateToLocal(serverState);
                 localStorage.setItem('rusgo_app_state', JSON.stringify(state));
                 console.log('RusGo: SQLite API active (logged in as ' + state.username + ').', state);
             } else if (res.status === 401) {
@@ -56,17 +72,26 @@ document.addEventListener('DOMContentLoaded', () => {
     async function syncProgressToServer() {
         if (!isOnlineMode) return;
         try {
+            const body = {
+                xp: state.xp,
+                gems: state.gems,
+                streak: state.streak,
+                completed_levels: state.lessonsCompleted,
+                weekly_progress: state.weeklyProgress,
+                unlocked_achievements: state.unlockedAchievements || [],
+                settings: { ttsEnabled: state.ttsEnabled }
+            };
             const res = await fetch(`${API_URL}/api/progress`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
                     ...getAuthHeaders()
                 },
-                body: JSON.stringify(state)
+                body: JSON.stringify(body)
             });
             if (res.ok) {
                 const serverState = await res.json();
-                state = serverState;
+                state = mapServerStateToLocal(serverState);
                 localStorage.setItem('rusgo_app_state', JSON.stringify(state));
                 console.log('RusGo: Synced progress to SQLite.');
             }
