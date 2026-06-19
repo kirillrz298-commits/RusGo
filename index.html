@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RusGo — Интерактивная платформа изучения русского языка с ИИ</title>
+    <meta name="description" content="Учите русский язык через игровые механики, интерактивного ИИ-репетитора и сценарии из реальной жизни. Начните говорить с первого дня!">
+    <meta name="keywords" content="русский язык, изучение языков, ИИ учитель, EdTech, RusGo, Duolingo для русского, интерактивное обучение">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="RusGo — Умная платформа для изучения русского языка">
+    <meta property="og:description" content="Уникальный игровой опыт и разговорный ИИ-наставник для быстрого освоения русского языка.">
+    <meta property="og:image" content="https://rusgo.io/og-image.jpg">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <!-- Background Glow Elements -->
+    <div class="radial-glow glow-1"></div>
+    <div class="radial-glow glow-2"></div>
+    <div class="radial-glow glow-3"></div>
+
+    <!-- LANDING PAGE VIEW WRAPPER -->
+    <div id="landingPage">
+        <!-- Navigation Header -->
+        <header class="header">
+            <div class="container header-container">
+                <a href="#" class="logo">
+                    <span class="logo-icon">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m5 3 3-1 6 4 5-2v13l-5 2-6-4-6 2z"/>
+                            <path d="M9 6v13M15 5v13"/>
+                        </svg>
+                    </span>
+                    <span class="logo-text">Rus<span class="text-primary">Go</span></span>
+                </a>
+                
+                <nav class="nav">
+                    <a href="#benefits" class="nav-link">Преимущества</a>
+                    <a href="#learning" class="nav-link">Обучение</a>
+                    <a href="#ai-tutor" class="nav-link">ИИ-Наставник</a>
+                    <a href="#mobile-app" class="nav-link">Приложение</a>
+                    <a href="#faq" class="nav-link">FAQ</a>
+                </nav>
+                
+                <div class="header-actions">
+                    <button class="btn btn-ghost investor-trigger" id="investorBtn">
+                        <span class="investor-badge">Pitch Deck</span>
+                        Инвесторам
+                    </button>
+                    <button class="btn btn-secondary start-app-btn">Войти</button>
+                    <button class="btn btn-primary start-app-btn">Начать бесплатно</button>
+                </div>
+
+                <button class="mobile-nav-toggle" aria-label="Открыть меню">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Mobile Nav Overlay -->
+        <div class="mobile-nav-overlay">
+            <nav class="mobile-nav">
+                <a href="#benefits" class="mobile-link">Преимущества</a>
+                <a href="#learning" class="mobile-link">Обучение</a>
+                <a href="#ai-tutor" class="mobile-link">ИИ-Наставник</a>
+                <a href="#mobile-app" class="mobile-link">Приложение</a>
+                <a href="#faq" class="mobile-link">FAQ</a>
+                <button class="btn btn-ghost investor-trigger mobile-investor-btn" style="margin-top: 1.5rem; width: 100%;">
+                    <span class="investor-badge">Pitch Deck</span> Инвесторам
+                </button>
+                <button class="btn btn-primary start-app-btn" style="margin-top: 1rem; width: 100%; text-align: center;">Запустить приложение</button>
+            </nav>
+        </div>
+
+        <main>
+            <!-- Hero Section -->
+            <section class="hero" id="hero">
+                <div class="container hero-grid">
+                    <div class="hero-content">
+                        <div class="hero-badge animate-fade-in">
+                            <span class="badge-dot"></span>
+                            <span class="badge-text">ИИ-технологии обучения нового поколения</span>
+                        </div>
+                        <h1 class="hero-title animate-slide-up">
+                            Изучай русский язык <br><span class="text-gradient">легко и интересно</span>
+                        </h1>
+                        <p class="hero-subtitle animate-slide-up-delayed">
+                            Играй, общайся с ИИ и говори по-русски уже с первого дня. RusGo объединяет лучшие игровые механики и персонализированное обучение.
+                        </p>
+                        <div class="hero-actions animate-slide-up-delayed-more">
+                            <button class="btn btn-primary btn-lg start-app-btn">Начать бесплатно</button>
+                            <a href="#ai-tutor" class="btn btn-secondary btn-lg">
+                                <i data-lucide="play" class="btn-icon"></i> Смотреть демо
+                            </a>
+                        </div>
+                        <div class="hero-social-proof animate-fade-in-delayed">
+                            <div class="stars">
+                                <i data-lucide="star" class="star-icon fill-primary"></i>
+                                <i data-lucide="star" class="star-icon fill-primary"></i>
+                                <i data-lucide="star" class="star-icon fill-primary"></i>
+                                <i data-lucide="star" class="star-icon fill-primary"></i>
+                                <i data-lucide="star" class="star-icon fill-primary"></i>
+                            </div>
+                            <span class="proof-text"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="star-icon fill-primary" style="display: inline-block; vertical-align: -3px; margin-right: 4px; color: var(--primary);"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>4.9/5 на основе более 15,000 отзывов</span>
+                        </div>
+                    </div>
+                    
+                    <div class="hero-visual animate-float">
+                        <div class="phone-mockup-wrapper">
+                            <!-- Glow effect behind the phone -->
+                            <div class="phone-glow"></div>
+                            <div class="phone-frame">
+                                <div class="phone-screen">
+                                    <div class="phone-status-bar">
+                                        <span>9:41</span>
+                                        <div class="status-icons">
+                                            <i data-lucide="signal" size="14"></i>
+                                            <i data-lucide="wifi" size="14"></i>
+                                            <i data-lucide="battery" size="14"></i>
+                                        </div>
+                                    </div>
+                                    <div class="phone-app-header">
+                                        <div class="user-avatar-mini"><svg class="flag-svg" viewBox="0 0 3 2" width="22" height="15" style="display: inline-block; vertical-align: middle; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"><rect width="3" height="2" fill="#fff"/><rect width="3" height="1.333" fill="#0039a6" y="0.667"/><rect width="3" height="0.667" fill="#d52b1e" y="1.333"/></svg></div>
+                                        <div class="streak-mini"><i data-lucide="flame" class="fill-primary text-primary"></i> 7 дней</div>
+                                        <div class="gems-mini"><i data-lucide="zap" class="text-warning"></i> 340</div>
+                                    </div>
+                                    <div class="phone-app-content">
+                                        <div class="mini-card-lesson">
+                                            <div class="lesson-num">Урок 4 из 15</div>
+                                            <h3>Знакомство <i data-lucide="hand" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; color: #F59E0B;"></i></h3>
+                                            <p>Как представиться на русском?</p>
+                                            <div class="progress-bar-mini">
+                                                <div class="progress-bar-fill" style="width: 60%"></div>
+                                            </div>
+                                        </div>
+                                        <div class="mini-card-exercise">
+                                            <div class="exercise-title">Переведите слово:</div>
+                                            <div class="exercise-word">"Привет"</div>
+                                            <div class="exercise-options">
+                                                <button class="opt-btn">Goodbye</button>
+                                                <button class="opt-btn correct">Hello</button>
+                                                <button class="opt-btn">Thank you</button>
+                                            </div>
+                                        </div>
+                                        <div class="mini-app-nav">
+                                            <i data-lucide="book-open" class="active"></i>
+                                            <i data-lucide="message-square"></i>
+                                            <i data-lucide="trophy"></i>
+                                            <i data-lucide="user"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Floating Glassmorphic UI elements around the phone -->
+                            <div class="floating-badge badge-top-right glass">
+                                <div class="fb-icon bg-success"><i data-lucide="smile"></i></div>
+                                <div class="fb-text">
+                                    <strong>Отлично!</strong>
+                                    <span>Точность 98% сегодня</span>
+                                </div>
+                            </div>
+                            <div class="floating-badge badge-bottom-left glass">
+                                <div class="fb-icon bg-purple"><i data-lucide="award"></i></div>
+                                <div class="fb-text">
+                                    <strong>Достижение</strong>
+                                    <span>«Полиглот недели»</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Benefits Section -->
+            <section class="benefits" id="benefits">
+                <div class="container">
+                    <div class="section-header text-center">
+                        <h2 class="section-title">Почему выбирают RusGo</h2>
+                        <p class="section-subtitle">Передовые методы геймификации и нейросети для быстрого погружения в язык</p>
+                    </div>
+                    
+                    <div class="benefits-grid">
+                        <!-- Benefit 1 -->
+                        <div class="benefit-card glass">
+                            <div class="benefit-icon-wrapper">
+                                <i data-lucide="gamepad-2" style="width: 28px; height: 28px; color: var(--primary);"></i>
+                            </div>
+                            <h3 class="benefit-card-title">Игровое обучение</h3>
+                            <p class="benefit-card-desc">Проходите увлекательные интерактивные уровни, зарабатывайте награды и соревнуйтесь в лигах. Обучение без скучной зубрежки.</p>
+                        </div>
+                        <!-- Benefit 2 -->
+                        <div class="benefit-card glass">
+                            <div class="benefit-icon-wrapper">
+                                <i data-lucide="bot" style="width: 28px; height: 28px; color: var(--primary);"></i>
+                            </div>
+                            <h3 class="benefit-card-title">ИИ-наставник</h3>
+                            <p class="benefit-card-desc">Практикуйте живой разговорный русский с виртуальным преподавателем, готовым общаться на любые темы 24/7 и бережно исправлять ошибки.</p>
+                        </div>
+                        <!-- Benefit 3 -->
+                        <div class="benefit-card glass">
+                            <div class="benefit-icon-wrapper">
+                                <i data-lucide="mic" style="width: 28px; height: 28px; color: var(--primary);"></i>
+                            </div>
+                            <h3 class="benefit-card-title">Проверка произношения</h3>
+                            <p class="benefit-card-desc">Интеллектуальная система распознавания речи анализирует вашу речь и мгновенно подсказывает, как улучшить произношение сложных звуков.</p>
+                        </div>
+                        <!-- Benefit 4 -->
+                        <div class="benefit-card glass">
+                            <div class="benefit-icon-wrapper">
+                                <i data-lucide="trophy" style="width: 28px; height: 28px; color: var(--primary);"></i>
+                            </div>
+                            <h3 class="benefit-card-title">Система достижений</h3>
+                            <p class="benefit-card-desc">Отслеживайте свои успехи, открывайте уникальные значки достижений и поддерживайте ежедневную серию занятий вместе с друзьями.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Learning Path Section -->
+            <section class="learning" id="learning">
+                <div class="container">
+                    <div class="section-header text-center">
+                        <h2 class="section-title">Карта прогресса обучения</h2>
+                        <p class="section-subtitle">Пройдите путь от нуля до свободного владения языком по шагам</p>
+                    </div>
+
+                    <div class="learning-path-wrapper glass">
+                        <div class="learning-path-line">
+                            <div class="learning-path-progress" id="pathProgress"></div>
+                        </div>
+                        
+                        <div class="learning-levels">
+                            <!-- Level 1 -->
+                            <div class="level-node active" data-level="1">
+                                <div class="level-circle">
+                                    <span class="level-icon">A</span>
+                                </div>
+                                <div class="level-info">
+                                    <h4 class="level-title">Алфавит</h4>
+                                    <p class="level-desc">Кириллица и базовые звуки</p>
+                                </div>
+                                <div class="level-popover glass">
+                                    <h5>Уровень 1: Алфавит <i data-lucide="book-open" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: -2px; color: var(--primary); margin-left: 4px;"></i></h5>
+                                    <ul>
+                                        <li>33 буквы кириллицы</li>
+                                        <li>Правила чтения и ударения</li>
+                                        <li>Первые 50 базовых слов</li>
+                                    </ul>
+                                    <span class="popover-badge">Нажмите, чтобы начать</span>
+                                </div>
+                            </div>
+
+                            <!-- Level 2 -->
+                            <div class="level-node active" data-level="2">
+                                <div class="level-circle">
+                                    <span class="level-icon">С</span>
+                                </div>
+                                <div class="level-info">
+                                    <h4 class="level-title">Слова</h4>
+                                    <p class="level-desc">Словарный запас на каждый день</p>
+                                </div>
+                                <div class="level-popover glass">
+                                    <h5>Уровень 2: Слова <i data-lucide="apple" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: -2px; color: var(--primary); margin-left: 4px;"></i></h5>
+                                    <ul>
+                                        <li>500 ключевых существительных</li>
+                                        <li>Основные глаголы действия</li>
+                                        <li>Числа, цвета и календарь</li>
+                                    </ul>
+                                    <span class="popover-badge">Нажмите, чтобы начать</span>
+                                </div>
+                            </div>
+
+                            <!-- Level 3 -->
+                            <div class="level-node" data-level="3">
+                                <div class="level-circle">
+                                    <span class="level-icon">Ф</span>
+                                </div>
+                                <div class="level-info">
+                                    <h4 class="level-title">Фразы</h4>
+                                    <p class="level-desc">Строим правильные предложения</p>
+                                </div>
+                                <div class="level-popover glass">
+                                    <h5>Уровень 3: Фразы <i data-lucide="message-circle" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: -2px; color: var(--primary); margin-left: 4px;"></i></h5>
+                                    <ul>
+                                        <li>Построение простых фраз</li>
+                                        <li>Базовые падежные формы</li>
+                                        <li>Вопросы и отрицания</li>
+                                    </ul>
+                                    <span class="popover-badge">Нажмите, чтобы начать</span>
+                                </div>
+                            </div>
+
+                            <!-- Level 4 -->
+                            <div class="level-node" data-level="4">
+                                <div class="level-circle">
+                                    <span class="level-icon">Д</span>
+                                </div>
+                                <div class="level-info">
+                                    <h4 class="level-title">Диалоги</h4>
+                                    <p class="level-desc">Реальные ситуации общения</p>
+                                </div>
+                                <div class="level-popover glass">
+                                    <h5>Уровень 4: Диалоги <i data-lucide="messages-square" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: -2px; color: var(--primary); margin-left: 4px;"></i></h5>
+                                    <ul>
+                                        <li>Заказ еды в ресторане</li>
+                                        <li>Покупка билетов, навигация</li>
+                                        <li>Разговор по телефону</li>
+                                    </ul>
+                                    <span class="popover-badge">Нажмите, чтобы начать</span>
+                                </div>
+                            </div>
+
+                            <!-- Level 5 -->
+                            <div class="level-node" data-level="5">
+                                <div class="level-circle">
+                                    <span class="level-icon">★</span>
+                                </div>
+                                <div class="level-info">
+                                    <h4 class="level-title">Свободное общение</h4>
+                                    <p class="level-desc">Беглость речи и обсуждение тем</p>
+                                </div>
+                                <div class="level-popover glass">
+                                    <h5>Уровень 5: Свобода <i data-lucide="rocket" style="width: 1rem; height: 1rem; display: inline-block; vertical-align: -2px; color: var(--primary); margin-left: 4px;"></i></h5>
+                                    <ul>
+                                        <li>Деловое общение и сленг</li>
+                                        <li>Сложные грамматические конструкции</li>
+                                        <li>Темы: технологии, политика, искусство</li>
+                                    </ul>
+                                    <span class="popover-badge">Нажмите, чтобы начать</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Tutor Section -->
+            <section class="ai-tutor" id="ai-tutor">
+                <div class="container ai-grid">
+                    <div class="ai-content">
+                        <div class="hero-badge accent-purple">
+                            <span class="badge-dot purple"></span>
+                            <span class="badge-text">Интерактивный симулятор</span>
+                        </div>
+                        <h2 class="section-title text-left">Ваш персональный ИИ-наставник Анна</h2>
+                        <p class="section-subtitle text-left">
+                            Анна подстраивается под ваш темп. Она не просто имитирует переписку, а понимает контекст, исправляет ошибки в падежах и мягко направляет диалог. Попробуйте пообщаться прямо сейчас!
+                        </p>
+                        
+                        <div class="topic-selector-title">Выберите сценарий диалога:</div>
+                        <div class="topic-selector">
+                            <button class="topic-btn active" data-topic="food">
+                                <i data-lucide="utensils" style="width: 1.1rem; height: 1.1rem;"></i> Заказ еды
+                            </button>
+                            <button class="topic-btn" data-topic="shopping">
+                                <i data-lucide="shopping-bag" style="width: 1.1rem; height: 1.1rem;"></i> Покупки
+                            </button>
+                            <button class="topic-btn" data-topic="travel">
+                                <i data-lucide="plane" style="width: 1.1rem; height: 1.1rem;"></i> Путешествия
+                            </button>
+                            <button class="topic-btn" data-topic="interview">
+                                <i data-lucide="briefcase" style="width: 1.1rem; height: 1.1rem;"></i> Собеседование
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live Chat Simulator -->
+                    <div class="ai-visual">
+                        <div class="chat-window glass">
+                            <!-- Chat Header -->
+                            <div class="chat-header">
+                                <div class="tutor-avatar-wrapper">
+                                    <div class="tutor-avatar" style="overflow: hidden; padding: 0;">
+                                        <svg viewBox="0 0 100 100" class="tutor-avatar-svg" style="width: 100%; height: 100%; display: block; border-radius: 50%;">
+                                            <defs>
+                                                <linearGradient id="avatarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" stop-color="#8B5CF6" />
+                                                    <stop offset="100%" stop-color="#EC4899" />
+                                                </linearGradient>
+                                                <linearGradient id="hairGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                    <stop offset="0%" stop-color="#2D3748" />
+                                                    <stop offset="100%" stop-color="#1A202C" />
+                                                </linearGradient>
+                                            </defs>
+                                            <circle cx="50" cy="50" r="50" fill="url(#avatarGrad)" />
+                                            <path d="M50 35 L50 65" stroke="#FFE4E6" stroke-width="14" stroke-linecap="round" />
+                                            <circle cx="50" cy="45" r="18" fill="#FFE4E6" />
+                                            <path d="M30 45 C30 25, 70 25, 70 45 C70 50, 68 55, 68 55 C68 55, 64 45, 50 45 C36 45, 32 55, 32 55 C32 55, 30 50, 30 45 Z" fill="url(#hairGrad)" />
+                                            <path d="M32 40 C35 32, 45 32, 50 35 C55 32, 65 32, 68 40" fill="none" stroke="url(#hairGrad)" stroke-width="6" stroke-linecap="round" />
+                                            <circle cx="42" cy="45" r="6" fill="none" stroke="#1A202C" stroke-width="2.5" />
+                                            <circle cx="58" cy="45" r="6" fill="none" stroke="#1A202C" stroke-width="2.5" />
+                                            <line x1="48" y1="45" x2="52" y2="45" stroke="#1A202C" stroke-width="2.5" />
+                                            <line x1="36" y1="44" x2="33" y2="45" stroke="#1A202C" stroke-width="1.5" />
+                                            <line x1="64" y1="44" x2="67" y2="45" stroke="#1A202C" stroke-width="1.5" />
+                                            <path d="M46 53 Q50 57 54 53" fill="none" stroke="#E11D48" stroke-width="2.5" stroke-linecap="round" />
+                                            <path d="M28 85 C28 72, 38 65, 50 65 C62 65, 72 72, 72 85 Z" fill="#1E293B" />
+                                            <path d="M44 65 L50 73 L56 65 Z" fill="#22C55E" />
+                                            <path d="M80 20 L82 25 L87 27 L82 29 L80 34 L78 29 L73 27 L78 25 Z" fill="#FBBF24" />
+                                            <path d="M18 68 L19 71 L22 72 L19 73 L18 76 L17 73 L14 72 L17 71 Z" fill="#FBBF24" />
+                                        </svg>
+                                    </div>
+                                    <span class="tutor-status-dot"></span>
+                                </div>
+                                <div class="tutor-info">
+                                    <span class="tutor-name">Анна</span>
+                                    <span class="tutor-status">ИИ-наставник RusGo</span>
+                                </div>
+                                <div class="chat-actions">
+                                    <i data-lucide="volume-2" class="chat-icon-btn active" title="Включить озвучку"></i>
+                                    <i data-lucide="info" class="chat-icon-btn" title="О сценарии"></i>
+                                </div>
+                            </div>
+
+                            <!-- Chat Messages Container -->
+                            <div class="chat-body" id="chatBody">
+                                <!-- Messages will be generated by JS -->
+                            </div>
+
+                            <!-- Chat Footer / User Options -->
+                            <div class="chat-footer">
+                                <div class="typing-indicator" id="typingIndicator">
+                                    <span></span><span></span><span></span>
+                                </div>
+                                <div class="quick-replies" id="quickReplies">
+                                    <!-- Dynamic options for user responses -->
+                                </div>
+                                <div class="chat-input-placeholder">
+                                    <span class="placeholder-text">Выберите ответ выше для отправки...</span>
+                                    <button class="mic-btn"><i data-lucide="mic"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Section -->
+            <section class="stats" id="stats">
+                <div class="container">
+                    <div class="stats-grid">
+                        <!-- Stat 1 -->
+                        <div class="stat-card glass">
+                            <div class="stat-number" data-target="1000000">0</div>
+                            <div class="stat-plus">+</div>
+                            <div class="stat-label">Выученных слов</div>
+                        </div>
+                        <!-- Stat 2 -->
+                        <div class="stat-card glass">
+                            <div class="stat-number" data-target="100000">0</div>
+                            <div class="stat-plus">+</div>
+                            <div class="stat-label">Активных учеников</div>
+                        </div>
+                        <!-- Stat 3 -->
+                        <div class="stat-card glass">
+                            <div class="stat-number" data-target="95">0</div>
+                            <div class="stat-plus">%</div>
+                            <div class="stat-label">Положительных отзывов</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Mobile App Showcase Section -->
+            <section class="mobile-app" id="mobile-app">
+                <div class="container app-grid">
+                    <div class="app-visual">
+                        <div class="phone-mockup-wrapper mockup-large">
+                            <div class="phone-glow primary-glow"></div>
+                            <div class="phone-frame">
+                                <div class="phone-screen" id="appMockupScreen">
+                                    <!-- Smartphone screens will render dynamically based on active tab -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="app-content">
+                        <div class="hero-badge">
+                            <span class="badge-dot"></span>
+                            <span class="badge-text">Мобильное приложение</span>
+                        </div>
+                        <h2 class="section-title text-left">Учитесь эффективно в любой точке мира</h2>
+                        <p class="section-subtitle text-left">
+                            Весь функционал платформы — от игровых тестов до диалогов с искусственным интеллектом — всегда у вас в кармане. Наш интерфейс создан для быстрых 10-минутных ежедневных сессий.
+                        </p>
+
+                        <!-- App tabs navigation -->
+                        <div class="app-tabs-list">
+                            <!-- Tab 1 -->
+                            <div class="app-tab active" data-app-tab="lessons">
+                                <div class="tab-icon-box"><i data-lucide="book-open"></i></div>
+                                <div class="tab-meta">
+                                    <h4>Интерактивные уроки</h4>
+                                    <p>Короткие понятные карточки теории и практики</p>
+                                </div>
+                            </div>
+                            <!-- Tab 2 -->
+                            <div class="app-tab" data-app-tab="tasks">
+                                <div class="tab-icon-box"><i data-lucide="check-square"></i></div>
+                                <div class="tab-meta">
+                                    <h4>Ежедневные задания</h4>
+                                    <p>Квесты и цели, помогающие держать мозг в тонусе</p>
+                                </div>
+                            </div>
+                            <!-- Tab 3 -->
+                            <div class="app-tab" data-app-tab="achievements">
+                                <div class="tab-icon-box"><i data-lucide="trophy"></i></div>
+                                <div class="tab-meta">
+                                    <h4>Система достижений</h4>
+                                    <p>Разблокируйте значки за упорство и скорость</p>
+                                </div>
+                            </div>
+                            <!-- Tab 4 -->
+                            <div class="app-tab" data-app-tab="streak">
+                                <div class="tab-icon-box"><i data-lucide="flame"></i></div>
+                                <div class="tab-meta">
+                                    <h4>Ежедневная серия занятий</h4>
+                                    <p>Сохраняйте огонь регулярности и ставьте рекорды</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="app-download-buttons">
+                            <button class="btn btn-primary start-app-btn" style="padding: 1rem 2rem; width: 100%;">
+                                Запустить веб-версию RusGo <i data-lucide="rocket" style="width: 1.2rem; height: 1.2rem; display: inline-block; vertical-align: -2.5px; margin-left: 0.5rem;"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Testimonials Section -->
+            <section class="testimonials" id="testimonials">
+                <div class="container">
+                    <div class="section-header text-center">
+                        <h2 class="section-title">Что говорят наши студенты</h2>
+                        <p class="section-subtitle">Отзывы людей, которые заговорили по-русски благодаря RusGo</p>
+                    </div>
+
+                    <div class="testimonials-slider-wrapper">
+                        <div class="testimonials-slider" id="testimonialsSlider">
+                            <!-- Slide 1 -->
+                            <div class="testimonial-card glass">
+                                <div class="user-meta">
+                                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Sarah" class="user-avatar-img">
+                                    <div class="user-info-text">
+                                        <h4>Сара Джонсон</h4>
+                                        <span>США, Студентка лингвистики</span>
+                                    </div>
+                                    <span class="user-flag"><svg class="flag-svg" viewBox="0 0 19 10" width="22" height="12" style="display: inline-block; vertical-align: middle; border-radius: 1px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"><rect width="19" height="10" fill="#b22234"/><path d="M0,0H19V0.77H0z M0,1.54H19V2.31H0z M0,3.08H19V3.85H0z M0,4.62H19V5.39H0z M0,6.15H19V6.92H0z M0,7.69H19V8.46H0z M0,9.23H19V10H0z" fill="#fff"/><rect width="7.6" height="5.38" fill="#3c3b6e"/><g fill="#fff"><circle cx="1.2" cy="0.8" r="0.2"/><circle cx="2.5" cy="0.8" r="0.2"/><circle cx="3.8" cy="0.8" r="0.2"/><circle cx="5.1" cy="0.8" r="0.2"/><circle cx="6.4" cy="0.8" r="0.2"/><circle cx="1.8" cy="1.6" r="0.2"/><circle cx="3.1" cy="1.6" r="0.2"/><circle cx="4.4" cy="1.6" r="0.2"/><circle cx="5.7" cy="1.6" r="0.2"/><circle cx="1.2" cy="2.4" r="0.2"/><circle cx="2.5" cy="2.4" r="0.2"/><circle cx="3.8" cy="2.4" r="0.2"/><circle cx="5.1" cy="2.4" r="0.2"/><circle cx="6.4" cy="2.4" r="0.2"/><circle cx="1.8" cy="3.2" r="0.2"/><circle cx="3.1" cy="3.2" r="0.2"/><circle cx="4.4" cy="3.2" r="0.2"/><circle cx="5.7" cy="3.2" r="0.2"/><circle cx="1.2" cy="4.0" r="0.2"/><circle cx="2.5" cy="4.0" r="0.2"/><circle cx="3.8" cy="4.0" r="0.2"/><circle cx="5.1" cy="4.0" r="0.2"/><circle cx="6.4" cy="4.0" r="0.2"/><circle cx="1.8" cy="4.8" r="0.2"/><circle cx="3.1" cy="4.8" r="0.2"/><circle cx="4.4" cy="4.8" r="0.2"/><circle cx="5.7" cy="4.8" r="0.2"/></g></svg></span>
+                                </div>
+                                <div class="rating">
+                                    <i data-lucide="star" class="star-icon fill-primary"></i>
+                                    <i data-lucide="star" class="star-icon fill-primary"></i>
+                                    <i data-lucide="star" class="star-icon fill-primary"></i>
+                                    <i data-lucide="star" class="star-icon fill-primary"></i>
+                                    <i data-lucide="star" class="star-icon fill-primary"></i>
+                                </div>
+                                <p class="testimonial-text">
+                                    «Интерактивный чат с Анной — это просто находка! Я боялась делать ошибки, общаясь с реальными людьми, но с ИИ-репетитором я расслабилась и заговорила. Мой словарный запас вырос в 3 раза за пару месяцев!»
+                                </p>
+                            </div>
+
+                            <!-- Slide 2 -->
+                            <div class="testimonial-card glass">
+                                <div class="user-meta">
+                                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" alt="Kenji" class="user-avatar-img">
+                                    <div class="user-info-text">
+                                        <h4>Кенджи Танака</h4>
+                                        <span>Япония, IT-инженер</span>
+                                    </div>
+                                    <span class="user-flag"><svg class="flag-svg" viewBox="0 0 3 2" width="22" height="15" style="display: inline-block; vertical-align: middle; border-radius: 1px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"><rect width="3" height="2" fill="#fff"/><circle cx="1.5" cy="1" r="0.6" fill="#bc002d"/></svg></span>
+                                </div>
+                                <div class="rating">
+                                    <i data-lucide="star" class="star-icon fill-primary"></i>
+                                    <i data-lucide="star" class="star-icon fill-primary"></i>
+                                    <i data-lucide="star" class="star-icon fill-primary"></i>
+                                    <i data-lucide="star" class="star-icon fill-primary"></i>
+                                    <i data-lucide="star" class="star-icon fill-primary"></i>
+                                </div>
+                                <p class="testimonial-text">
+                                    «Игровая карта прогресса очень мотивирует. Я захожу каждый день, чтобы не потерять свою серию занятий. До RusGo я пробовал три других приложения, но только здесь дошел до уровня диалогов.»
+                                </p>
+                            </div>
+
+                            <!-- Slide 3 -->
+                            <div class="testimonial-card glass">
+                                <div class="user-meta">
+                                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80" alt="Mateo" class="user-avatar-img">
+                                    <div class="user-info-text">
+                                        <h4>Матео Фернандес</h4>
+                                        <span>Испания, Предприниматель</span>
+                                    </div>
+                                    <span class="user-flag"><svg class="flag-svg" viewBox="0 0 3 2" width="22" height="15" style="display: inline-block; vertical-align: middle; border-radius: 1px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"><rect width="3" height="2" fill="#aa151b"/><rect width="3" height="1" fill="#f1bf00" y="0.5"/></svg></span>
+                                </div>
+                                <div class="rating">
+                                    <i data-lucide="star" class="star-icon fill-primary"></i>
+                                    <i data-lucide="star" class="star-icon fill-primary"></i>
+                                    <i data-lucide="star" class="star-icon fill-primary"></i>
+                                    <i data-lucide="star" class="star-icon fill-primary"></i>
+                                    <i data-lucide="star" class="star-icon fill-primary"></i>
+                                </div>
+                                <p class="testimonial-text">
+                                    «Прекрасный дизайн и плавная работа интерфейса. Функция проверки произношения помогла мне избавиться от сильного испанского акцента. Рекомендую всем, кто ведет бизнес в Восточной Европе.»
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="slider-controls">
+                            <button class="slider-btn prev-btn" id="prevSlide"><i data-lucide="chevron-left"></i></button>
+                            <div class="slider-dots" id="sliderDots"></div>
+                            <button class="slider-btn next-btn" id="nextSlide"><i data-lucide="chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ Section -->
+            <section class="faq" id="faq">
+                <div class="container">
+                    <div class="section-header text-center">
+                        <h2 class="section-title">Часто задаваемые вопросы</h2>
+                        <p class="section-subtitle">Отвечаем на популярные вопросы о нашей платформе</p>
+                    </div>
+
+                    <div class="faq-list">
+                        <!-- FAQ 1 -->
+                        <div class="faq-item glass">
+                            <button class="faq-trigger">
+                                <span>Как работает ИИ-наставник?</span>
+                                <i data-lucide="chevron-down" class="faq-icon"></i>
+                            </button>
+                            <div class="faq-content">
+                                <p>
+                                    ИИ-наставник Анна работает на базе современной языковой модели, специально обученной методикам преподавания русского языка как иностранного (РКИ). Она понимает естественную речь, адаптирует сложность ответов под ваш уровень, автоматически находит грамматические неточности и предлагает правильные варианты без давления на ученика.
+                                </p>
+                            </div>
+                        </div>
+                        <!-- FAQ 2 -->
+                        <div class="faq-item glass">
+                            <button class="faq-trigger">
+                                <span>Подходит ли RusGo для абсолютных новичков?</span>
+                                <i data-lucide="chevron-down" class="faq-icon"></i>
+                            </button>
+                            <div class="faq-content">
+                                <p>
+                                    Да, абсолютно! Наша программа обучения начинается со знакомства с кириллицей на Уровне 1 (Алфавит). Мы используем аудиозаписи носителей языка и визуальные карточки, чтобы вы научились правильно читать и произносить базовые звуки с самого начала.
+                                </p>
+                            </div>
+                        </div>
+                        <!-- FAQ 3 -->
+                        <div class="faq-item glass">
+                            <button class="faq-trigger">
+                                <span>Сколько времени нужно уделять занятиям?</span>
+                                <i data-lucide="chevron-down" class="faq-icon"></i>
+                            </button>
+                            <div class="faq-content">
+                                <p>
+                                    Мы рекомендуем заниматься всего по 10-15 минут каждый день. Наша система ежедневных квестов и серий занятий (streak) разработана так, чтобы поддерживать регулярность обучения. Именно постоянство, а не длительность уроков, гарантирует наилучший результат в долгосрочной перспективе.
+                                </p>
+                            </div>
+                        </div>
+                        <!-- FAQ 4 -->
+                        <div class="faq-item glass">
+                            <button class="faq-trigger">
+                                <span>Платформа действительно бесплатна?</span>
+                                <i data-lucide="chevron-down" class="faq-icon"></i>
+                            </button>
+                            <div class="faq-content">
+                                <p>
+                                    Базовые уроки и карта прогресса доступны бесплатно. Мы также предлагаем подписку RusGo Pro, которая предоставляет безлимитные разговоры с ИИ-наставником Анной, расширенную обратную связь по произношению и подробную аналитику вашего прогресса.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CTA Section -->
+            <section class="cta-banner">
+                <div class="container text-center relative z-10">
+                    <h2 class="cta-title">Начните свой путь в русский язык сегодня</h2>
+                    <p class="cta-subtitle">Присоединяйтесь к более чем 100,000 активных студентов со всего мира.</p>
+                    <div class="cta-buttons">
+                        <button class="btn btn-primary btn-lg start-app-btn">Начать бесплатно</button>
+                        <button class="btn btn-outline-white btn-lg start-app-btn">Связаться с нами</button>
+                    </div>
+                </div>
+                <div class="cta-glow"></div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container footer-grid">
+                <div class="footer-brand">
+                    <a href="#" class="logo">
+                        <span class="logo-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m5 3 3-1 6 4 5-2v13l-5 2-6-4-6 2z"/>
+                                <path d="M9 6v13M15 5v13"/>
+                            </svg>
+                        </span>
+                        <span class="logo-text">Rus<span class="text-primary">Go</span></span>
+                    </a>
+                    <p class="footer-desc">
+                        Инновационная EdTech платформа для легкого и интерактивного изучения русского языка с применением искусственного интеллекта.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link" aria-label="Twitter"><i data-lucide="twitter"></i></a>
+                        <a href="#" class="social-link" aria-label="Instagram"><i data-lucide="instagram"></i></a>
+                        <a href="#" class="social-link" aria-label="Github"><i data-lucide="github"></i></a>
+                        <a href="#" class="social-link" aria-label="Youtube"><i data-lucide="youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Продукт</h4>
+                    <a href="#benefits">Преимущества</a>
+                    <a href="#learning">Карта прогресса</a>
+                    <a href="#ai-tutor">ИИ Анна</a>
+                    <a href="#mobile-app">Мобильное приложение</a>
+                    <a href="#">Обновления</a>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Компания</h4>
+                    <a href="#">О нас</a>
+                    <a href="#">Карьера</a>
+                    <a href="#">Пресса</a>
+                    <a href="#">Блог</a>
+                    <a href="#" class="investor-trigger">Инвесторам <span class="investor-badge mini">Seed</span></a>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Поддержка</h4>
+                    <a href="#faq">Служба заботы</a>
+                    <a href="#faq">FAQ</a>
+                    <a href="#">Политика конфиденциальности</a>
+                    <a href="#">Условия использования</a>
+                    <a href="#">Контакты</a>
+                </div>
+            </div>
+
+            <div class="container footer-bottom">
+                <p>&copy; 2026 RusGo Inc. Все права защищены. Сделано с ❤️ для любителей русского языка.</p>
+            </div>
+        </footer>
+    </div>
+
+
+    <!-- FULL WEB APPLICATION VIEW WRAPPER -->
+    <div id="appInterface" class="app-container" style="display: none;">
+        <!-- App Sidebar -->
+        <aside class="app-sidebar">
+            <div class="app-logo">
+                <span class="logo-icon">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m5 3 3-1 6 4 5-2v13l-5 2-6-4-6 2z"/>
+                        <path d="M9 6v13M15 5v13"/>
+                    </svg>
+                </span>
+                <span class="logo-text">Rus<span class="text-primary">Go</span></span>
+            </div>
+            <nav class="app-nav">
+                <button class="app-nav-btn active" data-app-tab="map">
+                    <i data-lucide="map" class="app-nav-icon"></i>
+                    <span>Обучение</span>
+                </button>
+                <button class="app-nav-btn" data-app-tab="ai">
+                    <i data-lucide="message-square" class="app-nav-icon"></i>
+                    <span>ИИ-Репетитор</span>
+                </button>
+                <button class="app-nav-btn" data-app-tab="leaderboard">
+                    <i data-lucide="crown" class="app-nav-icon"></i>
+                    <span>Рейтинг</span>
+                </button>
+                <button class="app-nav-btn" data-app-tab="achievements">
+                    <i data-lucide="trophy" class="app-nav-icon"></i>
+                    <span>Достижения</span>
+                </button>
+                <button class="app-nav-btn" data-app-tab="profile">
+                    <i data-lucide="user" class="app-nav-icon"></i>
+                    <span>Профиль</span>
+                </button>
+            </nav>
+            <button class="btn btn-secondary app-exit-btn" id="exitAppBtn">
+                <i data-lucide="log-out" class="btn-icon"></i> На сайт
+            </button>
+        </aside>
+
+        <!-- App Main Content Area -->
+        <div class="app-main">
+            <!-- App Topbar Header -->
+            <header class="app-top-header">
+                <div class="app-header-title" id="appHeaderTitle">Карта обучения</div>
+                <div class="app-user-metrics">
+                    <div class="metric-pill streak" title="Ежедневная серия дней">
+                        <i data-lucide="flame" class="fill-primary text-primary"></i>
+                        <span id="appStreak">7</span>
+                    </div>
+                    <div class="metric-pill gems" title="Кристаллы">
+                        <i data-lucide="zap" class="text-warning"></i>
+                        <span id="appGems">120</span>
+                    </div>
+                    <div class="metric-pill xp" title="Набранный опыт">
+                        <i data-lucide="award" class="text-success"></i>
+                        <span id="appXp">0</span> XP
+                    </div>
+                    <div class="user-avatar-small" style="background-color: var(--accent-purple); overflow: hidden; padding: 0;">
+                        <svg viewBox="0 0 100 100" class="user-avatar-svg" style="width: 100%; height: 100%; display: block; border-radius: 50%;">
+                            <defs>
+                                <linearGradient id="userGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#10B981" />
+                                    <stop offset="100%" stop-color="#059669" />
+                                </linearGradient>
+                                <linearGradient id="userCapGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stop-color="#4F46E5" />
+                                    <stop offset="100%" stop-color="#3730A3" />
+                                </linearGradient>
+                            </defs>
+                            <circle cx="50" cy="50" r="50" fill="url(#userGrad1)" />
+                            <path d="M50 38 L50 68" stroke="#FDE047" stroke-width="14" stroke-linecap="round" />
+                            <circle cx="50" cy="48" r="18" fill="#FDE047" />
+                            <path d="M46 54 Q50 58 54 54" fill="none" stroke="#B45309" stroke-width="2.5" stroke-linecap="round" />
+                            <circle cx="43" cy="46" r="2" fill="#1E293B" />
+                            <circle cx="57" cy="46" r="2" fill="#1E293B" />
+                            <path d="M30 40 C30 25, 70 25, 70 40 Z" fill="url(#userCapGrad1)" />
+                            <path d="M25 38 C35 32, 65 32, 75 38 L75 42 C65 38, 35 38, 25 42 Z" fill="#312E81" />
+                            <circle cx="50" cy="24" r="3" fill="#FDE047" />
+                            <path d="M26 88 C26 74, 36 67, 50 67 C64 67, 74 74, 74 88 Z" fill="#1E293B" />
+                            <path d="M42 67 L50 75 L58 67 Z" fill="#F3F4F6" />
+                        </svg>
+                    </div>
+                </div>
+            </header>
+
+            <!-- App Views Wrapper -->
+            <div class="app-screen-content">
+                
+                <!-- View 1: Level Progress Path Map -->
+                <div class="app-view active" id="view-map">
+                    <div class="view-header-inline">
+                        <h2>Твоя траектория обучения</h2>
+                        <p>Нажимай на активные уровни для запуска интерактивных уроков</p>
+                    </div>
+                    <div class="interactive-path-board glass">
+                        <div class="path-scrolling-area">
+                            <div class="vertical-path-line">
+                                <div class="vertical-path-progress" id="appPathProgress"></div>
+                            </div>
+                            
+                            <div class="path-nodes-list" id="appPathNodes">
+                                <!-- Replicated dynamically via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View 2: Immersive Fullscreen AI Tutor -->
+                <div class="app-view" id="view-ai">
+                    <div class="app-chat-layout glass">
+                        <div class="app-chat-sidebar">
+                            <h4>Выбор темы:</h4>
+                            <div class="scenarios-list" id="appScenariosList">
+                                <!-- Generated Dynamically -->
+                            </div>
+                            <div class="sidebar-ai-info">
+                                <i data-lucide="sparkles" class="text-warning" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> <strong>Анна</strong> готова помочь вам в любое время. Она анализирует ваши ответы и поправляет ошибки.
+                            </div>
+                        </div>
+                        <div class="app-chat-container">
+                            <div class="app-chat-header">
+                                <div class="tutor-avatar-wrapper">
+                                    <div class="tutor-avatar" style="overflow: hidden; padding: 0;">
+                                        <svg viewBox="0 0 100 100" class="tutor-avatar-svg" style="width: 100%; height: 100%; display: block; border-radius: 50%;">
+                                            <defs>
+                                                <linearGradient id="avatarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" stop-color="#8B5CF6" />
+                                                    <stop offset="100%" stop-color="#EC4899" />
+                                                </linearGradient>
+                                                <linearGradient id="hairGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                    <stop offset="0%" stop-color="#2D3748" />
+                                                    <stop offset="100%" stop-color="#1A202C" />
+                                                </linearGradient>
+                                            </defs>
+                                            <circle cx="50" cy="50" r="50" fill="url(#avatarGrad)" />
+                                            <path d="M50 35 L50 65" stroke="#FFE4E6" stroke-width="14" stroke-linecap="round" />
+                                            <circle cx="50" cy="45" r="18" fill="#FFE4E6" />
+                                            <path d="M30 45 C30 25, 70 25, 70 45 C70 50, 68 55, 68 55 C68 55, 64 45, 50 45 C36 45, 32 55, 32 55 C32 55, 30 50, 30 45 Z" fill="url(#hairGrad)" />
+                                            <path d="M32 40 C35 32, 45 32, 50 35 C55 32, 65 32, 68 40" fill="none" stroke="url(#hairGrad)" stroke-width="6" stroke-linecap="round" />
+                                            <circle cx="42" cy="45" r="6" fill="none" stroke="#1A202C" stroke-width="2.5" />
+                                            <circle cx="58" cy="45" r="6" fill="none" stroke="#1A202C" stroke-width="2.5" />
+                                            <line x1="48" y1="45" x2="52" y2="45" stroke="#1A202C" stroke-width="2.5" />
+                                            <line x1="36" y1="44" x2="33" y2="45" stroke="#1A202C" stroke-width="1.5" />
+                                            <line x1="64" y1="44" x2="67" y2="45" stroke="#1A202C" stroke-width="1.5" />
+                                            <path d="M46 53 Q50 57 54 53" fill="none" stroke="#E11D48" stroke-width="2.5" stroke-linecap="round" />
+                                            <path d="M28 85 C28 72, 38 65, 50 65 C62 65, 72 72, 72 85 Z" fill="#1E293B" />
+                                            <path d="M44 65 L50 73 L56 65 Z" fill="#22C55E" />
+                                            <path d="M80 20 L82 25 L87 27 L82 29 L80 34 L78 29 L73 27 L78 25 Z" fill="#FBBF24" />
+                                            <path d="M18 68 L19 71 L22 72 L19 73 L18 76 L17 73 L14 72 L17 71 Z" fill="#FBBF24" />
+                                        </svg>
+                                    </div>
+                                    <span class="tutor-status-dot"></span>
+                                </div>
+                                <div class="tutor-info">
+                                    <span class="tutor-name">Анна</span>
+                                    <span class="tutor-status">ИИ-наставник RusGo</span>
+                                </div>
+                                <div class="chat-actions">
+                                    <i data-lucide="volume-2" class="chat-icon-btn active" id="ttsToggleApp" title="Включить синтез голоса"></i>
+                                </div>
+                            </div>
+                            <div class="chat-body" id="appChatBody">
+                                <!-- Chat history -->
+                            </div>
+                            <div class="chat-footer">
+                                <div class="typing-indicator" id="appTypingIndicator">
+                                    <span></span><span></span><span></span>
+                                </div>
+                                <div class="quick-replies" id="appQuickReplies">
+                                    <!-- Options -->
+                                </div>
+                                <div class="chat-input-placeholder">
+                                    <span class="placeholder-text">Выберите ответ выше для отправки...</span>
+                                    <button class="mic-btn"><i data-lucide="mic"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View 3: Leaderboard League -->
+                <div class="app-view" id="view-leaderboard">
+                    <div class="view-header-inline">
+                        <h2>Изумрудная лига <i data-lucide="crown" class="text-warning" style="width: 1.5rem; height: 1.5rem; display: inline-block; vertical-align: -3px; margin-left: 0.25rem;"></i></h2>
+                        <p>Набирай опыт (XP) в уроках, чтобы подняться на первое место. Рейтинг обновляется в реальном времени!</p>
+                    </div>
+                    <div class="leaderboard-table-wrapper glass">
+                        <table class="leaderboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Место</th>
+                                    <th>Студент</th>
+                                    <th>Опыт (XP)</th>
+                                    <th>Твой ранг</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appLeaderboardBody">
+                                <!-- Replicated dynamically via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- View 4: Achievements -->
+                <div class="app-view" id="view-achievements">
+                    <div class="view-header-inline">
+                        <h2>Твои достижения <i data-lucide="award" class="text-primary" style="width: 1.5rem; height: 1.5rem; display: inline-block; vertical-align: -3px; margin-left: 0.25rem;"></i></h2>
+                        <p>Выполняй задания и разблокируй редкие награды</p>
+                    </div>
+                    <div class="achievements-card-grid" id="appAchievementsGrid">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+
+                <!-- View 5: User Profile & Stats -->
+                <div class="app-view" id="view-profile">
+                    <div class="view-header-inline">
+                        <h2>Твой профиль</h2>
+                        <p>Статистика, успехи и настройки аккаунта</p>
+                    </div>
+                    
+                    <div class="profile-grid">
+                        <div class="profile-left-card glass">
+                            <div class="profile-avatar-large" style="background-color: var(--accent-purple); overflow: hidden; padding: 0;">
+                                <svg viewBox="0 0 100 100" class="user-avatar-svg" style="width: 100%; height: 100%; display: block; border-radius: 50%;">
+                                    <defs>
+                                        <linearGradient id="userGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#10B981" />
+                                            <stop offset="100%" stop-color="#059669" />
+                                        </linearGradient>
+                                        <linearGradient id="userCapGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stop-color="#4F46E5" />
+                                            <stop offset="100%" stop-color="#3730A3" />
+                                        </linearGradient>
+                                    </defs>
+                                    <circle cx="50" cy="50" r="50" fill="url(#userGrad2)" />
+                                    <path d="M50 38 L50 68" stroke="#FDE047" stroke-width="14" stroke-linecap="round" />
+                                    <circle cx="50" cy="48" r="18" fill="#FDE047" />
+                                    <path d="M46 54 Q50 58 54 54" fill="none" stroke="#B45309" stroke-width="2.5" stroke-linecap="round" />
+                                    <circle cx="43" cy="46" r="2" fill="#1E293B" />
+                                    <circle cx="57" cy="46" r="2" fill="#1E293B" />
+                                    <path d="M30 40 C30 25, 70 25, 70 40 Z" fill="url(#userCapGrad2)" />
+                                    <path d="M25 38 C35 32, 65 32, 75 38 L75 42 C65 38, 35 38, 25 42 Z" fill="#312E81" />
+                                    <circle cx="50" cy="24" r="3" fill="#FDE047" />
+                                    <path d="M26 88 C26 74, 36 67, 50 67 C64 67, 74 74, 74 88 Z" fill="#1E293B" />
+                                    <path d="M42 67 L50 75 L58 67 Z" fill="#F3F4F6" />
+                                </svg>
+                            </div>
+                            <h3 id="appUsername">Студент RusGo</h3>
+                            <span class="user-level-badge">Изучает: Русский язык</span>
+                            
+                            <div class="profile-reset-box">
+                                <p>Хотите начать обучение сначала?</p>
+                                <button class="btn btn-secondary btn-reset" id="appResetBtn">Сбросить прогресс</button>
+                            </div>
+                        </div>
+                        
+                        <div class="profile-right-card glass">
+                            <h3>Показатели обучения</h3>
+                            <div class="stats-summary-grid">
+                                <div class="summary-item">
+                                    <span class="val text-primary" id="appTotalXpText">0</span>
+                                    <span class="lbl">Всего XP</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="val text-gradient" id="appStreakText">7</span>
+                                    <span class="lbl">Дней серии</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="val" id="appLessonsText">0</span>
+                                    <span class="lbl">Уроков пройдено</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="val text-warning" id="appGemsText">120</span>
+                                    <span class="lbl">Кристаллов</span>
+                                </div>
+                            </div>
+                            
+                            <div class="weekly-tracker-container">
+                                <h4>Активность за последние 7 дней</h4>
+                                <div class="tracker-bars-row" id="appTrackerBars">
+                                    <!-- Handled in JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- FULLSCREEN INTERACTIVE LESSON PLAYER -->
+    <div class="lesson-overlay" id="lessonOverlay" style="display: none;">
+        <div class="lesson-player-container glass">
+            <!-- Header progress bar -->
+            <header class="lesson-player-header">
+                <button class="lesson-exit-btn" id="exitLessonBtn">✕</button>
+                <div class="lesson-progress-container">
+                    <div class="lesson-progress-bar" id="lessonProgressBar"></div>
+                </div>
+                <div class="lesson-score-counter">
+                    <i data-lucide="award" class="text-primary"></i> <span id="lessonXpCounter">0</span> XP
+                </div>
+            </header>
+
+            <!-- Dynamic Question/Slide Content -->
+            <div class="lesson-player-body" id="lessonPlayerBody">
+                <!-- Injected dynamically by JS -->
+            </div>
+
+            <!-- Bottom checking footer -->
+            <footer class="lesson-player-footer">
+                <div class="lesson-footer-content container">
+                    <div class="lesson-feedback" id="lessonFeedback">
+                        <!-- Correct/Wrong notification text -->
+                    </div>
+                    <button class="btn btn-primary btn-lg" id="lessonActionBtn">Проверить</button>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+
+    <!-- Investor Pitch Deck Overlay Modal -->
+    <div class="investor-modal" id="investorModal">
+        <div class="modal-backdrop" id="modalBackdrop"></div>
+        <div class="modal-container glass">
+            <button class="modal-close" id="modalCloseBtn" aria-label="Закрыть модальное окно">
+                <i data-lucide="x"></i>
+            </button>
+            <div class="modal-header">
+                <div class="investor-badge-large">PITCH DECK</div>
+                <h2>Презентация для инвесторов</h2>
+                <p>Ключевые показатели EdTech-платформы RusGo</p>
+            </div>
+            
+            <div class="modal-body">
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <span class="m-val">$30 млрд+</span>
+                        <span class="m-lbl">Рынок изучения языков (TAM 2028)</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="m-val">42%</span>
+                        <span class="m-lbl">Рост CAGR сегмента ИИ в EdTech</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="m-val">4.5x</span>
+                        <span class="m-lbl">Соотношение LTV / CAC</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="m-val">68%</span>
+                        <span class="m-lbl">Удержание 3-го месяца (Retention)</span>
+                    </div>
+                </div>
+
+                <div class="deck-section">
+                    <h3>💡 Бизнес-модель (Freemium)</h3>
+                    <p>Бесплатный доступ к базовой геймификации мотивирует органический рост. Подписка RusGo Pro ($9.99/мес) открывает неограниченное диалоговое время с ИИ-репетитором, детальный разбор произношения и оффлайн-режим.</p>
+                </div>
+
+                <div class="deck-section">
+                    <h3>🛡️ Технологический барьер (Moat)</h3>
+                    <ul>
+                        <li>Собственные тонко настроенные модели (fine-tuned LLM) для славянской грамматики и коррекции акцента.</li>
+                        <li>Уникальный датасет из 5 млн+ размеченных разговорных фраз.</li>
+                        <li>Алгоритм динамического интервального повторения, интегрированный в игровые квесты.</li>
+                    </ul>
+                </div>
+
+                <div class="deck-section">
+                    <h3>📈 Текущий раунд: Seed ($2.5M)</h3>
+                    <p>Наш проект оценивается по модели быстрорастущих SaaS с потенциалом капитализации $100M+ к серии А через 18 месяцев. Привлекаемые средства пойдут на масштабирование команды ИИ, маркетинг в странах Латинской Америки и Азии, а также локализацию интерфейса на 12 языков.</p>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <a href="mailto:invest@rusgo.io" class="btn btn-primary" style="width: 100%; text-align: center;">Связаться с фаундерами</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>

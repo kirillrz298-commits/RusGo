@@ -1,0 +1,4 @@
+node_modules/
+rusgo.db
+.env
+.DS_Store
