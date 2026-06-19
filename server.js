@@ -28,62 +28,76 @@ const db = new sqlite3.Database(DB_FILE, (err) => {
 // Setup schema tables with migrations
 function initializeDatabase() {
     db.serialize(() => {
-        // Read current database user_version
-        db.get('PRAGMA user_version', (err, res) => {
-            if (err) {
-                console.error('Error reading DB schema version:', err.message);
+        // Check if users table exists
+        db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='users'", (tableErr, tableRes) => {
+            if (tableErr) {
+                console.error('Error checking database tables:', tableErr.message);
                 return;
             }
+            
+            const usersTableExists = !!tableRes;
 
-            const currentVersion = res ? res.user_version : 0;
-            console.log(`SQLite DB Version: v${currentVersion}`);
+            db.get('PRAGMA user_version', (err, res) => {
+                if (err) {
+                    console.error('Error reading DB schema version:', err.message);
+                    return;
+                }
 
-            if (currentVersion < 2) {
-                // Drop old schema if exists to upgrade cleanly to UNIQUE username constraints and passwords
-                console.log('Upgrading database schema to version 2 (with password auth support)...');
-                
-                db.run('DROP TABLE IF EXISTS progress');
-                db.run('DROP TABLE IF EXISTS users');
+                let currentVersion = res ? res.user_version : 0;
+                if (!usersTableExists) {
+                    currentVersion = 0;
+                }
+                console.log(`SQLite DB Version: v${currentVersion} (Users table exists: ${usersTableExists})`);
 
-                db.run(`
-                    CREATE TABLE IF NOT EXISTS users (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        username TEXT UNIQUE NOT NULL,
-                        password_hash TEXT NOT NULL,
-                        salt TEXT NOT NULL,
-                        avatar TEXT DEFAULT '👤',
-                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                    )
-                `);
+                if (currentVersion < 2) {
+                    // Drop old schema if exists to upgrade cleanly to UNIQUE username constraints and passwords
+                    console.log('Upgrading database schema to version 2 (with password auth support)...');
+                    
+                    db.serialize(() => {
+                        db.run('DROP TABLE IF EXISTS progress');
+                        db.run('DROP TABLE IF EXISTS users');
 
-                db.run(`
-                    CREATE TABLE IF NOT EXISTS progress (
-                        user_id INTEGER PRIMARY KEY,
-                        xp INTEGER DEFAULT 0,
-                        gems INTEGER DEFAULT 120,
-                        streak INTEGER DEFAULT 7,
-                        last_active TEXT,
-                        completed_levels TEXT DEFAULT '[]',
-                        weekly_progress TEXT DEFAULT '[10,0,30,15,25,10,0]',
-                        unlocked_achievements TEXT DEFAULT '[]',
-                        settings TEXT DEFAULT '{"ttsEnabled":true}',
-                        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-                    )
-                `);
+                        db.run(`
+                            CREATE TABLE IF NOT EXISTS users (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                username TEXT UNIQUE NOT NULL,
+                                password_hash TEXT NOT NULL,
+                                salt TEXT NOT NULL,
+                                avatar TEXT DEFAULT '👤',
+                                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                            )
+                        `);
 
-                db.run('PRAGMA user_version = 2', (versionErr) => {
-                    if (versionErr) {
-                        console.error('Error setting db version to 2:', versionErr.message);
-                    } else {
-                        console.log('Database successfully upgraded to version 2.');
-                    }
+                        db.run(`
+                            CREATE TABLE IF NOT EXISTS progress (
+                                user_id INTEGER PRIMARY KEY,
+                                xp INTEGER DEFAULT 0,
+                                gems INTEGER DEFAULT 120,
+                                streak INTEGER DEFAULT 7,
+                                last_active TEXT,
+                                completed_levels TEXT DEFAULT '[]',
+                                weekly_progress TEXT DEFAULT '[10,0,30,15,25,10,0]',
+                                unlocked_achievements TEXT DEFAULT '[]',
+                                settings TEXT DEFAULT '{"ttsEnabled":true}',
+                                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+                            )
+                        `);
+
+                        db.run('PRAGMA user_version = 2', (versionErr) => {
+                            if (versionErr) {
+                                                            console.error('Error setting db version to 2:', versionErr.message);
+                            } else {
+                                console.log('Database successfully upgraded to version 2.');
+                            }
+                            seedDefaultUser();
+                        });
+                    });
+                } else {
+                    console.log('Database schema is up to date.');
                     seedDefaultUser();
-                });
-            } else {
-                console.log('Database schema is up to date.');
-                seedDefaultUser();
-            }
+                }
+            });
         });
     });
 }
