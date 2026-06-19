@@ -104,8 +104,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const saved = localStorage.getItem('rusgo_app_state');
         if (saved) {
             try {
-                state = { ...DEFAULT_STATE, ...JSON.parse(saved) };
+                const parsed = JSON.parse(saved);
+                // Если в localStorage лежат серверные snake_case ключи — нормализуем их.
+                // mapServerStateToLocal обрабатывает оба формата: если нет completed_levels,
+                // то вернётся lessonsCompleted из parsed через spread по DEFAULT_STATE.
+                if (parsed.completed_levels !== undefined) {
+                    state = { ...DEFAULT_STATE, ...mapServerStateToLocal(parsed) };
+                } else {
+                    // Локальный формат — просто подмерживаем, гарантируя наличие всех полей
+                    state = {
+                        ...DEFAULT_STATE,
+                        ...parsed,
+                        lessonsCompleted: Array.isArray(parsed.lessonsCompleted) ? parsed.lessonsCompleted : [],
+                        weeklyProgress: Array.isArray(parsed.weeklyProgress) ? parsed.weeklyProgress : [0,0,0,0,0,0,0],
+                        unlockedAchievements: Array.isArray(parsed.unlockedAchievements) ? parsed.unlockedAchievements : []
+                    };
+                }
             } catch (e) {
+                console.warn('RusGo: Failed to parse saved state, resetting.', e);
                 state = { ...DEFAULT_STATE };
             }
         } else {
@@ -164,17 +180,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (appStreakText) appStreakText.textContent = state.streak;
         if (appGemsText) appGemsText.textContent = state.gems;
         if (appTotalXpText) appTotalXpText.textContent = state.xp;
-        if (appLessonsText) appLessonsText.textContent = state.lessonsCompleted.length;
+        if (appLessonsText) appLessonsText.textContent = (state.lessonsCompleted || []).length;
 
         if (profileStreak) profileStreak.textContent = state.streak;
         if (profileGems) profileGems.textContent = state.gems;
         if (profileTotalXP) profileTotalXP.textContent = state.xp;
-        if (profileLessonsCompleted) profileLessonsCompleted.textContent = state.lessonsCompleted.length;
+        if (profileLessonsCompleted) profileLessonsCompleted.textContent = (state.lessonsCompleted || []).length;
 
         // Update profile username
         const appUsername = document.getElementById('appUsername');
+        const topbarUsername = document.getElementById('topbarUsername');
         const profileUserLevel = document.getElementById('profileUserLevel');
         if (appUsername) appUsername.textContent = state.username || 'Студент RusGo';
+        if (topbarUsername) topbarUsername.textContent = state.username || '';
         
         if (profileUserLevel) {
             if (state.xp < 50) profileUserLevel.textContent = 'Новичок';
@@ -447,6 +465,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (exitAppBtn) exitAppBtn.addEventListener('click', exitAppMode);
 
+    // Topbar avatar/username -> navigate to profile tab
+    const topbarProfileBtn = document.getElementById('topbarProfileBtn');
+    if (topbarProfileBtn) {
+        topbarProfileBtn.addEventListener('click', () => {
+            // Use same logic as sidebar nav buttons
+            appNavBtns.forEach(b => b.classList.remove('active'));
+            const profileNavBtn = document.querySelector('[data-app-tab="profile"]');
+            if (profileNavBtn) profileNavBtn.classList.add('active');
+
+            appViews.forEach(view => {
+                view.classList.remove('active');
+                if (view.id === 'view-profile') view.classList.add('active');
+            });
+
+            if (appHeaderTitle) appHeaderTitle.textContent = 'Мой профиль';
+            state.activeTab = 'profile';
+        });
+    }
+
 
     // Sidebar Navigation Tabs inside App
     const appNavBtns = document.querySelectorAll('.app-nav-btn');
@@ -482,6 +519,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Helper: switch to any tab programmatically
+    function switchToTab(tabName) {
+        appNavBtns.forEach(b => b.classList.remove('active'));
+        const targetBtn = document.querySelector(`[data-app-tab="${tabName}"]`);
+        if (targetBtn) targetBtn.classList.add('active');
+
+        appViews.forEach(view => {
+            view.classList.remove('active');
+            if (view.id === `view-${tabName}`) view.classList.add('active');
+        });
+
+        if (appHeaderTitle) appHeaderTitle.textContent = tabTitles[tabName] || 'RusGo';
+        state.activeTab = tabName;
+
+        // Scroll app content to top
+        const screenContent = document.querySelector('.app-screen-content');
+        if (screenContent) screenContent.scrollTop = 0;
+    }
+
+    // Profile shortcut buttons
+    const profileToAchievementsBtn = document.getElementById('profileToAchievementsBtn');
+    const profileToLeaderboardBtn  = document.getElementById('profileToLeaderboardBtn');
+    const profileToMapBtn          = document.getElementById('profileToMapBtn');
+
+    if (profileToAchievementsBtn) profileToAchievementsBtn.addEventListener('click', () => switchToTab('achievements'));
+    if (profileToLeaderboardBtn)  profileToLeaderboardBtn.addEventListener('click',  () => switchToTab('leaderboard'));
+    if (profileToMapBtn)          profileToMapBtn.addEventListener('click',          () => switchToTab('map'));
+
+    // Also update topbarProfileBtn to use switchToTab (now defined)
+    // (Re-bind since switchToTab wasn't available when the btn was first wired)
+    if (topbarProfileBtn) {
+        topbarProfileBtn.onclick = () => switchToTab('profile');
+    }
+
 
     /* ---------------------------------------------------
      * DYNAMIC GAME PROGRESS PATH MAP
@@ -504,13 +575,14 @@ document.addEventListener('DOMContentLoaded', () => {
         let activeFound = false;
 
         levelsList.forEach((level, idx) => {
-            const isCompleted = state.lessonsCompleted.includes(level.id);
+            const lessons = state.lessonsCompleted || [];
+            const isCompleted = lessons.includes(level.id);
             // Level is active if it is the first uncompleted level, or all previous are completed
             let isActive = false;
             if (!isCompleted && !activeFound) {
                 isActive = true;
                 activeFound = true;
-            } else if (idx === 0 && state.lessonsCompleted.length === 0) {
+            } else if (idx === 0 && lessons.length === 0) {
                 isActive = true;
                 activeFound = true;
             }
@@ -549,7 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Update vertical line progress percentage
         if (appPathProgress) {
-            let completedCount = state.lessonsCompleted.length;
+            let completedCount = (state.lessonsCompleted || []).length;
             let percent = (completedCount / levelsList.length) * 100;
             appPathProgress.style.height = `${percent}%`;
         }
@@ -1135,6 +1207,7 @@ document.addEventListener('DOMContentLoaded', () => {
         state.gems += activeLesson.gemsReward;
 
         // Record Completed Levels
+        if (!state.lessonsCompleted) state.lessonsCompleted = [];
         if (!state.lessonsCompleted.includes(activeLessonId)) {
             state.lessonsCompleted.push(activeLessonId);
         }
@@ -1263,7 +1336,7 @@ document.addEventListener('DOMContentLoaded', () => {
         achievementsList.forEach(ach => {
             // Calculate progress based on state values
             let val = 0;
-            if (ach.type === 'lessons') val = state.lessonsCompleted.length;
+            if (ach.type === 'lessons') val = (state.lessonsCompleted || []).length;
             if (ach.type === 'streak') val = state.streak;
             if (ach.type === 'gems') val = state.gems;
             if (ach.type === 'xp') val = state.xp;

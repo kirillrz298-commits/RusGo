@@ -3146,3 +3146,81 @@ section {
 .mobile-link:hover {
     color: #FFFFFF;
 }
+
+/* =========================================
+   TOPBAR PROFILE BUTTON
+   ========================================= */
+.topbar-profile-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    padding: 0.25rem 0.75rem 0.25rem 0.5rem;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    color: var(--text-main);
+    position: relative;
+}
+
+.topbar-profile-btn:hover {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 16px rgba(139, 92, 246, 0.25);
+    transform: translateY(-1px);
+}
+
+.topbar-profile-btn:hover .user-avatar-small {
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.5);
+}
+
+.topbar-profile-btn:active {
+    transform: translateY(0);
+}
+
+.topbar-username {
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Quick-access shortcut button in profile view */
+.profile-shortcut-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.profile-shortcut-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.1rem;
+    border-radius: 50px;
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.profile-shortcut-btn:hover {
+    background: var(--primary-glow);
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-1px);
+}
+
+.profile-shortcut-btn svg {
+    width: 16px;
+    height: 16px;
+}
