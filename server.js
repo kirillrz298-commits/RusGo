@@ -2,10 +2,14 @@ const express = require('express');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DB_FILE = path.join(__dirname, 'rusgo.db');
+
+// Token signing key
+const JWT_SECRET = 'rusgo-super-secret-key-2026';
 
 // Middleware
 app.use(express.json());
@@ -34,14 +38,19 @@ function initializeDatabase() {
             const currentVersion = res ? res.user_version : 0;
             console.log(`SQLite DB Version: v${currentVersion}`);
 
-            if (currentVersion === 0) {
-                // Version 1 Setup (Initial Database Initialization)
-                console.log('Initializing schema v1 tables...');
+            if (currentVersion < 2) {
+                // Drop old schema if exists to upgrade cleanly to UNIQUE username constraints and passwords
+                console.log('Upgrading database schema to version 2 (with password auth support)...');
                 
+                db.run('DROP TABLE IF EXISTS progress');
+                db.run('DROP TABLE IF EXISTS users');
+
                 db.run(`
                     CREATE TABLE IF NOT EXISTS users (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        username TEXT DEFAULT 'Студент RusGo',
+                        username TEXT UNIQUE NOT NULL,
+                        password_hash TEXT NOT NULL,
+                        salt TEXT NOT NULL,
                         avatar TEXT DEFAULT '👤',
                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                     )
@@ -63,24 +72,15 @@ function initializeDatabase() {
                     )
                 `);
 
-                db.run('PRAGMA user_version = 1', (versionErr) => {
+                db.run('PRAGMA user_version = 2', (versionErr) => {
                     if (versionErr) {
-                        console.error('Error setting db version to 1:', versionErr.message);
+                        console.error('Error setting db version to 2:', versionErr.message);
                     } else {
-                        console.log('Database successfully initialized to version 1.');
+                        console.log('Database successfully upgraded to version 2.');
                     }
                     seedDefaultUser();
                 });
             } else {
-                // Dynamic forward migration block placeholder:
-                // This block lets us update schema structure in the future without data loss
-                /*
-                if (currentVersion < 2) {
-                    console.log('Migrating schema to v2...');
-                    db.run('ALTER TABLE progress ADD COLUMN custom_theme TEXT DEFAULT "dark"');
-                    db.run('PRAGMA user_version = 2');
-                }
-                */
                 console.log('Database schema is up to date.');
                 seedDefaultUser();
             }
@@ -88,7 +88,7 @@ function initializeDatabase() {
     });
 }
 
-// Seed default developer/student user id=1 if not exists
+// Seed default tester/student user account: student / password
 function seedDefaultUser() {
     db.get('SELECT id FROM users WHERE id = 1', (err, row) => {
         if (err) {
@@ -97,16 +97,25 @@ function seedDefaultUser() {
         }
 
         if (!row) {
-            console.log('Seeding default user and progress state...');
+            console.log('Seeding default student tester account...');
+            const defaultUsername = 'student';
+            const defaultPassword = 'password';
+            const salt = crypto.randomBytes(16).toString('hex');
+            const passwordHash = crypto.pbkdf2Sync(defaultPassword, salt, 1000, 64, 'sha512').toString('hex');
+            
             db.serialize(() => {
-                db.run('INSERT INTO users (id, username, avatar) VALUES (1, "Студент RusGo", "👤")', (err) => {
-                    if (err) console.error('Error inserting user:', err.message);
-                });
+                db.run(
+                    'INSERT INTO users (id, username, password_hash, salt, avatar) VALUES (1, ?, ?, ?, "👤")',
+                    [defaultUsername, passwordHash, salt],
+                    (insertErr) => {
+                        if (insertErr) console.error('Error inserting seed user:', insertErr.message);
+                    }
+                );
                 db.run(`
                     INSERT INTO progress (user_id, xp, gems, streak, last_active, completed_levels, weekly_progress, unlocked_achievements, settings)
                     VALUES (1, 0, 120, 7, datetime('now'), '[]', '[10,0,30,15,25,10,0]', '[]', '{"ttsEnabled":true}')
-                `, (err) => {
-                    if (err) console.error('Error inserting progress:', err.message);
+                `, (progressErr) => {
+                    if (progressErr) console.error('Error inserting seed progress:', progressErr.message);
                 });
             });
         }
@@ -131,38 +140,168 @@ function formatUserResponse(row) {
     };
 }
 
+/* ==========================================================================
+   STATELESS HMAC TOKEN HELPERS
+   ========================================================================== */
+
+function generateToken(userId) {
+    const payload = JSON.stringify({ userId, exp: Date.now() + 24 * 60 * 60 * 1000 }); // 24hr expiration
+    const base64Payload = Buffer.from(payload).toString('base64');
+    const signature = crypto.createHmac('sha256', JWT_SECRET).update(base64Payload).digest('hex');
+    return `${base64Payload}.${signature}`;
+}
+
+function verifyToken(token) {
+    if (!token) return null;
+    const parts = token.split('.');
+    if (parts.length !== 2) return null;
+    const [base64Payload, signature] = parts;
+    const expectedSignature = crypto.createHmac('sha256', JWT_SECRET).update(base64Payload).digest('hex');
+    if (signature !== expectedSignature) return null;
+
+    try {
+        const payload = JSON.parse(Buffer.from(base64Payload, 'base64').toString('utf8'));
+        if (payload.exp < Date.now()) return null; // Expired
+        return payload.userId;
+    } catch (e) {
+        return null;
+    }
+}
+
+// Middleware to authenticate token
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer <token>
+
+    if (!token) {
+        return res.status(401).json({ error: 'Авторизация требуется' });
+    }
+
+    const userId = verifyToken(token);
+    if (!userId) {
+        return res.status(401).json({ error: 'Неверный или истекший сессионный токен' });
+    }
+
+    req.userId = userId;
+    next();
+}
 
 /* ==========================================================================
    REST API ENDPOINTS
    ========================================================================== */
 
-// 1. GET User profile & progress details
-app.get('/api/user', (req, res) => {
+// 1. POST Register a new user
+app.post('/api/auth/register', (req, res) => {
+    const { username, password, avatar } = req.body;
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Имя пользователя и пароль обязательны' });
+    }
+
+    const normUsername = username.trim();
+    if (normUsername.length < 3) {
+        return res.status(400).json({ error: 'Имя пользователя должно быть не менее 3 символов' });
+    }
+    if (password.length < 6) {
+        return res.status(400).json({ error: 'Пароль должен быть не менее 6 символов' });
+    }
+
+    const salt = crypto.randomBytes(16).toString('hex');
+    const passwordHash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+    const avatarVal = avatar || '👤';
+
+    db.run(
+        'INSERT INTO users (username, password_hash, salt, avatar) VALUES (?, ?, ?, ?)',
+        [normUsername, passwordHash, salt, avatarVal],
+        function(err) {
+            if (err) {
+                if (err.message.includes('UNIQUE')) {
+                    return res.status(400).json({ error: 'Пользователь с таким именем уже зарегистрирован' });
+                }
+                console.error('Registration database error:', err.message);
+                return res.status(500).json({ error: 'Ошибка базы данных при регистрации' });
+            }
+
+            const userId = this.lastID;
+
+            // Initialize progress entry
+            db.run(
+                `INSERT INTO progress (user_id, xp, gems, streak, last_active, completed_levels, weekly_progress, unlocked_achievements, settings)
+                 VALUES (?, 0, 120, 7, datetime('now'), '[]', '[0,0,0,0,0,0,0]', '[]', '{"ttsEnabled":true}')`,
+                [userId],
+                (progressErr) => {
+                    if (progressErr) {
+                        console.error('Registration progress setup error:', progressErr.message);
+                        return res.status(500).json({ error: 'Ошибка инициализации прогресса пользователя' });
+                    }
+
+                    const token = generateToken(userId);
+                    res.status(201).json({
+                        token,
+                        user: { id: userId, username: normUsername, avatar: avatarVal }
+                    });
+                }
+            );
+        }
+    );
+});
+
+// 2. POST Log in user
+app.post('/api/auth/login', (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Имя пользователя и пароль обязательны' });
+    }
+
+    const normUsername = username.trim().toLowerCase();
+    db.get('SELECT * FROM users WHERE LOWER(username) = ?', [normUsername], (err, user) => {
+        if (err) {
+            console.error('Login database select error:', err.message);
+            return res.status(500).json({ error: 'Внутренняя ошибка базы данных' });
+        }
+
+        if (!user) {
+            return res.status(400).json({ error: 'Неверное имя пользователя или пароль' });
+        }
+
+        const passwordHash = crypto.pbkdf2Sync(password, user.salt, 1000, 64, 'sha512').toString('hex');
+        if (passwordHash !== user.password_hash) {
+            return res.status(400).json({ error: 'Неверное имя пользователя или пароль' });
+        }
+
+        const token = generateToken(user.id);
+        res.json({
+            token,
+            user: { id: user.id, username: user.username, avatar: user.avatar }
+        });
+    });
+});
+
+// 3. GET User profile & progress details (Authenticated)
+app.get('/api/user', authenticateToken, (req, res) => {
     db.get(`
         SELECT u.id, u.username, u.avatar, p.xp, p.gems, p.streak, p.last_active,
                p.completed_levels, p.weekly_progress, p.unlocked_achievements, p.settings
         FROM users u
         LEFT JOIN progress p ON u.id = p.user_id
-        WHERE u.id = 1
-    `, (err, row) => {
+        WHERE u.id = ?
+    `, [req.userId], (err, row) => {
         if (err) {
             console.error('API Error fetching user:', err.message);
             return res.status(500).json({ error: 'Database query failure' });
         }
 
         if (!row) {
-            return res.status(404).json({ error: 'Default user not found' });
+            return res.status(404).json({ error: 'Пользователь не найден' });
         }
 
         res.json(formatUserResponse(row));
     });
 });
 
-// 2. POST Save progress updates
-app.post('/api/progress', (req, res) => {
+// 4. POST Save progress updates (Authenticated)
+app.post('/api/progress', authenticateToken, (req, res) => {
     const { xp, gems, streak, completed_levels, weekly_progress, unlocked_achievements, settings } = req.body;
 
-    // Convert objects to JSON string before inserting
     const completedLevelsStr = JSON.stringify(completed_levels || []);
     const weeklyProgressStr = JSON.stringify(weekly_progress || [0,0,0,0,0,0,0]);
     const unlockedAchievementsStr = JSON.stringify(unlocked_achievements || []);
@@ -179,21 +318,20 @@ app.post('/api/progress', (req, res) => {
             unlocked_achievements = ?, 
             settings = ?,
             updated_at = CURRENT_TIMESTAMP
-        WHERE user_id = 1
-    `, [xp, gems, streak, completedLevelsStr, weeklyProgressStr, unlockedAchievementsStr, settingsStr], function(err) {
+        WHERE user_id = ?
+    `, [xp, gems, streak, completedLevelsStr, weeklyProgressStr, unlockedAchievementsStr, settingsStr, req.userId], function(err) {
         if (err) {
             console.error('API Error updating progress:', err.message);
             return res.status(500).json({ error: 'Database update failure' });
         }
 
-        // Fetch updated row and respond
         db.get(`
             SELECT u.id, u.username, u.avatar, p.xp, p.gems, p.streak, p.last_active,
                    p.completed_levels, p.weekly_progress, p.unlocked_achievements, p.settings
             FROM users u
             LEFT JOIN progress p ON u.id = p.user_id
-            WHERE u.id = 1
-        `, (err, row) => {
+            WHERE u.id = ?
+        `, [req.userId], (err, row) => {
             if (err) {
                 return res.status(500).json({ error: 'Failed to fetch updated progress' });
             }
@@ -202,8 +340,8 @@ app.post('/api/progress', (req, res) => {
     });
 });
 
-// 3. POST Reset user progress columns back to defaults
-app.post('/api/reset', (req, res) => {
+// 5. POST Reset user progress columns back to defaults (Authenticated)
+app.post('/api/reset', authenticateToken, (req, res) => {
     db.run(`
         UPDATE progress
         SET xp = 0,
@@ -215,21 +353,20 @@ app.post('/api/reset', (req, res) => {
             unlocked_achievements = '[]',
             settings = '{"ttsEnabled":true}',
             updated_at = CURRENT_TIMESTAMP
-        WHERE user_id = 1
-    `, (err) => {
+        WHERE user_id = ?
+    `, [req.userId], (err) => {
         if (err) {
             console.error('API Error resetting progress:', err.message);
             return res.status(500).json({ error: 'Reset failure' });
         }
 
-        // Retrieve and respond
         db.get(`
             SELECT u.id, u.username, u.avatar, p.xp, p.gems, p.streak, p.last_active,
                    p.completed_levels, p.weekly_progress, p.unlocked_achievements, p.settings
             FROM users u
             LEFT JOIN progress p ON u.id = p.user_id
-            WHERE u.id = 1
-        `, (err, row) => {
+            WHERE u.id = ?
+        `, [req.userId], (err, row) => {
             if (err) {
                 return res.status(500).json({ error: 'Failed to fetch reset state' });
             }

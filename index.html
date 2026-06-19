@@ -51,15 +51,14 @@
                     <a href="#ai-tutor" class="nav-link">ИИ-Наставник</a>
                     <a href="#mobile-app" class="nav-link">Приложение</a>
                     <a href="#faq" class="nav-link">FAQ</a>
+                    <a href="#footer" class="nav-link">Инвесторам</a>
                 </nav>
                 
                 <div class="header-actions">
-                    <button class="btn btn-ghost investor-trigger" id="investorBtn">
-                        <span class="investor-badge">Pitch Deck</span>
-                        Инвесторам
-                    </button>
-                    <button class="btn btn-secondary start-app-btn">Войти</button>
-                    <button class="btn btn-primary start-app-btn">Начать бесплатно</button>
+                    <button class="btn btn-secondary" id="headerLoginBtn">Войти</button>
+                    <button class="btn btn-primary" id="headerRegisterBtn">Начать бесплатно</button>
+                    <button class="btn btn-primary" id="headerDashboardBtn" style="display: none;">Личный кабинет</button>
+                    <button class="btn btn-ghost" id="headerLogoutBtn" style="display: none;">Выйти</button>
                 </div>
 
                 <button class="mobile-nav-toggle" aria-label="Открыть меню">
@@ -78,10 +77,13 @@
                 <a href="#ai-tutor" class="mobile-link">ИИ-Наставник</a>
                 <a href="#mobile-app" class="mobile-link">Приложение</a>
                 <a href="#faq" class="mobile-link">FAQ</a>
-                <button class="btn btn-ghost investor-trigger mobile-investor-btn" style="margin-top: 1.5rem; width: 100%;">
-                    <span class="investor-badge">Pitch Deck</span> Инвесторам
-                </button>
-                <button class="btn btn-primary start-app-btn" style="margin-top: 1rem; width: 100%; text-align: center;">Запустить приложение</button>
+                <a href="#footer" class="mobile-link">Инвесторам</a>
+                <div class="mobile-auth-actions" style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 10px; width: 100%;">
+                    <button class="btn btn-secondary" id="mobileLoginBtn" style="width: 100%;">Войти</button>
+                    <button class="btn btn-primary" id="mobileRegisterBtn" style="width: 100%;">Начать бесплатно</button>
+                    <button class="btn btn-primary" id="mobileDashboardBtn" style="width: 100%; display: none;">Личный кабинет</button>
+                    <button class="btn btn-ghost" id="mobileLogoutBtn" style="width: 100%; display: none; color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.2);">Выйти</button>
+                </div>
             </nav>
         </div>
 
@@ -534,11 +536,6 @@
                             </div>
                         </div>
 
-                        <div class="app-download-buttons">
-                            <button class="btn btn-primary start-app-btn" style="padding: 1rem 2rem; width: 100%;">
-                                Запустить веб-версию RusGo <i data-lucide="rocket" style="width: 1.2rem; height: 1.2rem; display: inline-block; vertical-align: -2.5px; margin-left: 0.5rem;"></i>
-                            </button>
-                        </div>
                     </div>
                 </div>
             </section>
@@ -705,7 +702,7 @@
         </main>
 
         <!-- Footer -->
-        <footer class="footer">
+        <footer class="footer" id="footer">
             <div class="container footer-grid">
                 <div class="footer-brand">
                     <a href="#" class="logo">
@@ -743,7 +740,7 @@
                     <a href="#">Карьера</a>
                     <a href="#">Пресса</a>
                     <a href="#">Блог</a>
-                    <a href="#" class="investor-trigger">Инвесторам <span class="investor-badge mini">Seed</span></a>
+                    <a href="#footer">Инвесторам <span class="investor-badge mini">Seed</span></a>
                 </div>
 
                 <div class="footer-links">
@@ -1017,7 +1014,10 @@
                             
                             <div class="profile-reset-box">
                                 <p>Хотите начать обучение сначала?</p>
-                                <button class="btn btn-secondary btn-reset" id="appResetBtn">Сбросить прогресс</button>
+                                <button class="btn btn-secondary btn-reset" id="appResetBtn" style="width: 100%;">Сбросить прогресс</button>
+                                <button class="btn btn-ghost" id="appLogoutBtn" style="margin-top: 1rem; width: 100%; border: 1px solid rgba(239, 68, 68, 0.2); color: #EF4444;">
+                                    <i data-lucide="log-out" style="width: 1.2rem; height: 1.2rem; display: inline-block; vertical-align: -2.5px; margin-right: 0.5rem;"></i> Выйти из аккаунта
+                                </button>
                             </div>
                         </div>
                         
@@ -1089,62 +1089,71 @@
     </div>
 
 
-    <!-- Investor Pitch Deck Overlay Modal -->
-    <div class="investor-modal" id="investorModal">
-        <div class="modal-backdrop" id="modalBackdrop"></div>
+    <!-- Authentication Modal (Login / Register) -->
+    <div class="auth-modal" id="authModal">
+        <div class="modal-backdrop" id="authModalBackdrop"></div>
         <div class="modal-container glass">
-            <button class="modal-close" id="modalCloseBtn" aria-label="Закрыть модальное окно">
+            <button class="modal-close" id="authModalCloseBtn" aria-label="Закрыть окно">
                 <i data-lucide="x"></i>
             </button>
-            <div class="modal-header">
-                <div class="investor-badge-large">PITCH DECK</div>
-                <h2>Презентация для инвесторов</h2>
-                <p>Ключевые показатели EdTech-платформы RusGo</p>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab-btn active" id="tabLoginBtn" data-tab="login">Вход</button>
+                <button class="auth-tab-btn" id="tabRegisterBtn" data-tab="register">Регистрация</button>
             </div>
             
-            <div class="modal-body">
-                <div class="metrics-grid">
-                    <div class="metric-box">
-                        <span class="m-val">$30 млрд+</span>
-                        <span class="m-lbl">Рынок изучения языков (TAM 2028)</span>
-                    </div>
-                    <div class="metric-box">
-                        <span class="m-val">42%</span>
-                        <span class="m-lbl">Рост CAGR сегмента ИИ в EdTech</span>
-                    </div>
-                    <div class="metric-box">
-                        <span class="m-val">4.5x</span>
-                        <span class="m-lbl">Соотношение LTV / CAC</span>
-                    </div>
-                    <div class="metric-box">
-                        <span class="m-val">68%</span>
-                        <span class="m-lbl">Удержание 3-го месяца (Retention)</span>
+            <form id="authForm" class="auth-form">
+                <div class="form-group">
+                    <label for="authUsernameInput">Имя пользователя</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="user" class="input-icon"></i>
+                        <input type="text" id="authUsernameInput" required placeholder="Введите имя пользователя">
                     </div>
                 </div>
-
-                <div class="deck-section">
-                    <h3>💡 Бизнес-модель (Freemium)</h3>
-                    <p>Бесплатный доступ к базовой геймификации мотивирует органический рост. Подписка RusGo Pro ($9.99/мес) открывает неограниченное диалоговое время с ИИ-репетитором, детальный разбор произношения и оффлайн-режим.</p>
+                
+                <div class="form-group">
+                    <label for="authPasswordInput">Пароль</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="lock" class="input-icon"></i>
+                        <input type="password" id="authPasswordInput" required placeholder="Введите пароль">
+                    </div>
                 </div>
-
-                <div class="deck-section">
-                    <h3>🛡️ Технологический барьер (Moat)</h3>
-                    <ul>
-                        <li>Собственные тонко настроенные модели (fine-tuned LLM) для славянской грамматики и коррекции акцента.</li>
-                        <li>Уникальный датасет из 5 млн+ размеченных разговорных фраз.</li>
-                        <li>Алгоритм динамического интервального повторения, интегрированный в игровые квесты.</li>
-                    </ul>
+                
+                <!-- Avatar selection (only visible in register mode) -->
+                <div class="form-group" id="avatarSelectionGroup" style="display: none;">
+                    <label>Выберите аватар</label>
+                    <div class="avatar-presets">
+                        <label class="avatar-preset active">
+                            <input type="radio" name="avatarPreset" value="👤" checked>
+                            <span>👤</span>
+                        </label>
+                        <label class="avatar-preset">
+                            <input type="radio" name="avatarPreset" value="🦊">
+                            <span>🦊</span>
+                        </label>
+                        <label class="avatar-preset">
+                            <input type="radio" name="avatarPreset" value="🐼">
+                            <span>🐼</span>
+                        </label>
+                        <label class="avatar-preset">
+                            <input type="radio" name="avatarPreset" value="🦁">
+                            <span>🦁</span>
+                        </label>
+                        <label class="avatar-preset">
+                            <input type="radio" name="avatarPreset" value="🐯">
+                            <span>🐯</span>
+                        </label>
+                        <label class="avatar-preset">
+                            <input type="radio" name="avatarPreset" value="🐻">
+                            <span>🐻</span>
+                        </label>
+                    </div>
                 </div>
-
-                <div class="deck-section">
-                    <h3>📈 Текущий раунд: Seed ($2.5M)</h3>
-                    <p>Наш проект оценивается по модели быстрорастущих SaaS с потенциалом капитализации $100M+ к серии А через 18 месяцев. Привлекаемые средства пойдут на масштабирование команды ИИ, маркетинг в странах Латинской Америки и Азии, а также локализацию интерфейса на 12 языков.</p>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <a href="mailto:invest@rusgo.io" class="btn btn-primary" style="width: 100%; text-align: center;">Связаться с фаундерами</a>
-            </div>
+                
+                <div class="auth-error" id="authErrorMsg" style="display: none;"></div>
+                
+                <button type="submit" class="btn btn-primary" id="authSubmitBtn" style="width: 100%; text-align: center; margin-top: 1rem;">Войти</button>
+            </form>
         </div>
     </div>
 

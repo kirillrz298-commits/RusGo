@@ -21,16 +21,29 @@ document.addEventListener('DOMContentLoaded', () => {
     let isOnlineMode = false;
     const API_URL = window.location.origin.startsWith('file') ? 'http://localhost:3000' : '';
 
+    function getAuthHeaders() {
+        const token = localStorage.getItem('rusgo_auth_token');
+        return token ? { 'Authorization': `Bearer ${token}` } : {};
+    }
+
     async function checkServerConnection() {
+        const token = localStorage.getItem('rusgo_auth_token');
+        if (!token) {
+            isOnlineMode = false;
+            return;
+        }
         try {
-            const res = await fetch(`${API_URL}/api/user`);
+            const res = await fetch(`${API_URL}/api/user`, {
+                headers: { ...getAuthHeaders() }
+            });
             if (res.ok) {
                 isOnlineMode = true;
                 const serverState = await res.json();
-                // Overwrite state from server
                 state = serverState;
                 localStorage.setItem('rusgo_app_state', JSON.stringify(state));
-                console.log('RusGo: SQLite API active.', state);
+                console.log('RusGo: SQLite API active (logged in as ' + state.username + ').', state);
+            } else if (res.status === 401) {
+                logoutUserQuietly();
             } else {
                 isOnlineMode = false;
             }
@@ -45,7 +58,10 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res = await fetch(`${API_URL}/api/progress`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders()
+                },
                 body: JSON.stringify(state)
             });
             if (res.ok) {
@@ -60,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadState() {
-        // Load locally first for instant display
         const saved = localStorage.getItem('rusgo_app_state');
         if (saved) {
             try {
@@ -72,10 +87,11 @@ document.addEventListener('DOMContentLoaded', () => {
             state = { ...DEFAULT_STATE };
         }
         updateGlobalMetrics();
+        updateAuthButtonsVisibility();
 
-        // Check if server is running, load server data
         await checkServerConnection();
         updateGlobalMetrics();
+        updateAuthButtonsVisibility();
     }
 
     function saveState() {
@@ -84,6 +100,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isOnlineMode) {
             syncProgressToServer();
         }
+    }
+
+    function logoutUserQuietly() {
+        localStorage.removeItem('rusgo_auth_token');
+        localStorage.removeItem('rusgo_app_state');
+        state = { ...DEFAULT_STATE };
+        isOnlineMode = false;
+        updateGlobalMetrics();
+        updateAuthButtonsVisibility();
+    }
+
+    function logoutUser() {
+        logoutUserQuietly();
+        exitAppMode();
     }
 
     function updateGlobalMetrics() {
@@ -119,12 +149,26 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update profile username
         const appUsername = document.getElementById('appUsername');
         const profileUserLevel = document.getElementById('profileUserLevel');
-        if (appUsername) appUsername.textContent = 'Студент RusGo';
+        if (appUsername) appUsername.textContent = state.username || 'Студент RusGo';
         
         if (profileUserLevel) {
             if (state.xp < 50) profileUserLevel.textContent = 'Новичок';
             else if (state.xp < 150) profileUserLevel.textContent = 'Любитель';
             else profileUserLevel.textContent = 'Знаток';
+        }
+        
+        updateAvatarUI(state.avatar || '👤');
+    }
+
+    function updateAvatarUI(avatarText) {
+        const avatarSmall = document.querySelector('.user-avatar-small');
+        const avatarLarge = document.querySelector('.profile-avatar-large');
+        
+        if (avatarSmall) {
+            avatarSmall.innerHTML = `<span style="font-size: 1.5rem; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">${avatarText}</span>`;
+        }
+        if (avatarLarge) {
+            avatarLarge.innerHTML = `<span style="font-size: 3.5rem; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">${avatarText}</span>`;
         }
     }
 
@@ -161,7 +205,221 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    startAppButtons.forEach(btn => btn.addEventListener('click', enterAppMode));
+    // Mobile Nav Toggling
+    const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
+    const mobileNavOverlay = document.querySelector('.mobile-nav-overlay');
+    const mobileLinks = document.querySelectorAll('.mobile-link');
+
+    function closeMobileNav() {
+        if (mobileNavToggle) mobileNavToggle.classList.remove('active');
+        if (mobileNavOverlay) mobileNavOverlay.classList.remove('active');
+    }
+
+    if (mobileNavToggle && mobileNavOverlay) {
+        mobileNavToggle.addEventListener('click', () => {
+            mobileNavToggle.classList.toggle('active');
+            mobileNavOverlay.classList.toggle('active');
+        });
+    }
+
+    mobileLinks.forEach(link => {
+        link.addEventListener('click', closeMobileNav);
+    });
+
+    /* ---------------------------------------------------
+     * AUTHENTICATION & LOGIN/REGISTER MODAL LOGIC
+     * --------------------------------------------------- */
+    const authModal = document.getElementById('authModal');
+    const authModalBackdrop = document.getElementById('authModalBackdrop');
+    const authModalCloseBtn = document.getElementById('authModalCloseBtn');
+    const authForm = document.getElementById('authForm');
+    const authUsernameInput = document.getElementById('authUsernameInput');
+    const authPasswordInput = document.getElementById('authPasswordInput');
+    const avatarSelectionGroup = document.getElementById('avatarSelectionGroup');
+    const authErrorMsg = document.getElementById('authErrorMsg');
+    const authSubmitBtn = document.getElementById('authSubmitBtn');
+    
+    const tabLoginBtn = document.getElementById('tabLoginBtn');
+    const tabRegisterBtn = document.getElementById('tabRegisterBtn');
+    
+    const headerLoginBtn = document.getElementById('headerLoginBtn');
+    const headerRegisterBtn = document.getElementById('headerRegisterBtn');
+    const headerDashboardBtn = document.getElementById('headerDashboardBtn');
+    const headerLogoutBtn = document.getElementById('headerLogoutBtn');
+    
+    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+    const mobileRegisterBtn = document.getElementById('mobileRegisterBtn');
+    const mobileDashboardBtn = document.getElementById('mobileDashboardBtn');
+    const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+    
+    const appLogoutBtn = document.getElementById('appLogoutBtn');
+    
+    let authMode = 'login';
+
+    function openAuthModal(mode) {
+        authMode = mode || 'login';
+        authUsernameInput.value = '';
+        authPasswordInput.value = '';
+        authErrorMsg.style.display = 'none';
+        authErrorMsg.textContent = '';
+        
+        if (authMode === 'login') {
+            tabLoginBtn.classList.add('active');
+            tabRegisterBtn.classList.remove('active');
+            avatarSelectionGroup.style.display = 'none';
+            authSubmitBtn.textContent = 'Войти';
+        } else {
+            tabLoginBtn.classList.remove('active');
+            tabRegisterBtn.classList.add('active');
+            avatarSelectionGroup.style.display = 'block';
+            authSubmitBtn.textContent = 'Зарегистрироваться';
+        }
+        
+        if (authModal) {
+            authModal.classList.add('active');
+            document.body.classList.add('overflow-hidden');
+        }
+    }
+
+    function closeAuthModal() {
+        if (authModal) {
+            authModal.classList.remove('active');
+            if (!appInterface || appInterface.style.display !== 'flex') {
+                document.body.classList.remove('overflow-hidden');
+            }
+        }
+    }
+
+    function updateAuthButtonsVisibility() {
+        const token = localStorage.getItem('rusgo_auth_token');
+        
+        if (token) {
+            if (headerLoginBtn) headerLoginBtn.style.display = 'none';
+            if (headerRegisterBtn) headerRegisterBtn.style.display = 'none';
+            if (headerDashboardBtn) headerDashboardBtn.style.display = 'block';
+            if (headerLogoutBtn) headerLogoutBtn.style.display = 'block';
+            
+            if (mobileLoginBtn) mobileLoginBtn.style.display = 'none';
+            if (mobileRegisterBtn) mobileRegisterBtn.style.display = 'none';
+            if (mobileDashboardBtn) mobileDashboardBtn.style.display = 'block';
+            if (mobileLogoutBtn) mobileLogoutBtn.style.display = 'block';
+        } else {
+            if (headerLoginBtn) headerLoginBtn.style.display = 'block';
+            if (headerRegisterBtn) headerRegisterBtn.style.display = 'block';
+            if (headerDashboardBtn) headerDashboardBtn.style.display = 'none';
+            if (headerLogoutBtn) headerLogoutBtn.style.display = 'none';
+            
+            if (mobileLoginBtn) mobileLoginBtn.style.display = 'block';
+            if (mobileRegisterBtn) mobileRegisterBtn.style.display = 'block';
+            if (mobileDashboardBtn) mobileDashboardBtn.style.display = 'none';
+            if (mobileLogoutBtn) mobileLogoutBtn.style.display = 'none';
+        }
+    }
+
+    if (tabLoginBtn) tabLoginBtn.addEventListener('click', () => openAuthModal('login'));
+    if (tabRegisterBtn) tabRegisterBtn.addEventListener('click', () => openAuthModal('register'));
+    if (authModalCloseBtn) authModalCloseBtn.addEventListener('click', closeAuthModal);
+    if (authModalBackdrop) authModalBackdrop.addEventListener('click', closeAuthModal);
+
+    const presetLabels = document.querySelectorAll('.avatar-preset');
+    presetLabels.forEach(label => {
+        const input = label.querySelector('input');
+        if (input) {
+            input.addEventListener('change', () => {
+                presetLabels.forEach(l => l.classList.remove('active'));
+                if (input.checked) {
+                    label.classList.add('active');
+                }
+            });
+        }
+    });
+
+    if (authForm) {
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            authErrorMsg.style.display = 'none';
+            authErrorMsg.textContent = '';
+            
+            const username = authUsernameInput.value;
+            const password = authPasswordInput.value;
+            
+            let url = `${API_URL}/api/auth/login`;
+            let body = { username, password };
+            
+            if (authMode === 'register') {
+                url = `${API_URL}/api/auth/register`;
+                const checkedPreset = document.querySelector('input[name="avatarPreset"]:checked');
+                body.avatar = checkedPreset ? checkedPreset.value : '👤';
+            }
+            
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('rusgo_auth_token', data.token);
+                    closeAuthModal();
+                    
+                    await checkServerConnection();
+                    updateAuthButtonsVisibility();
+                    enterAppMode();
+                } else {
+                    authErrorMsg.textContent = data.error || 'Ошибка авторизации';
+                    authErrorMsg.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Auth error:', err);
+                authErrorMsg.textContent = 'Не удалось подключиться к серверу';
+                authErrorMsg.style.display = 'block';
+            }
+        });
+    }
+
+    if (headerLoginBtn) headerLoginBtn.addEventListener('click', () => openAuthModal('login'));
+    if (mobileLoginBtn) mobileLoginBtn.addEventListener('click', () => {
+        closeMobileNav();
+        openAuthModal('login');
+    });
+    
+    if (headerRegisterBtn) headerRegisterBtn.addEventListener('click', () => openAuthModal('register'));
+    if (mobileRegisterBtn) mobileRegisterBtn.addEventListener('click', () => {
+        closeMobileNav();
+        openAuthModal('register');
+    });
+
+    startAppButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const token = localStorage.getItem('rusgo_auth_token');
+            if (token) {
+                enterAppMode();
+            } else {
+                openAuthModal('register');
+            }
+        });
+    });
+
+    if (headerDashboardBtn) headerDashboardBtn.addEventListener('click', enterAppMode);
+    if (mobileDashboardBtn) mobileDashboardBtn.addEventListener('click', () => {
+        closeMobileNav();
+        enterAppMode();
+    });
+
+    const handleLogout = () => {
+        if (confirm('Вы уверены, что хотите выйти из аккаунта?')) {
+            logoutUser();
+        }
+    };
+    if (headerLogoutBtn) headerLogoutBtn.addEventListener('click', handleLogout);
+    if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', () => {
+        closeMobileNav();
+        handleLogout();
+    });
+    if (appLogoutBtn) appLogoutBtn.addEventListener('click', handleLogout);
+
     if (exitAppBtn) exitAppBtn.addEventListener('click', exitAppMode);
 
 
@@ -1043,10 +1301,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (appResetBtn) {
-        appResetBtn.addEventListener('click', () => {
+        appResetBtn.addEventListener('click', async () => {
             if (confirm('Вы уверены, что хотите сбросить все ваши достижения и начать с чистого листа?')) {
-                state = { ...DEFAULT_STATE, lessonsCompleted: [], weeklyProgress: [0, 0, 0, 0, 0, 0, 0] };
-                saveState();
+                if (isOnlineMode) {
+                    try {
+                        const res = await fetch(`${API_URL}/api/reset`, {
+                            method: 'POST',
+                            headers: { ...getAuthHeaders() }
+                        });
+                        if (res.ok) {
+                            const serverState = await res.json();
+                            state = serverState;
+                        }
+                    } catch (e) {
+                        console.error('Reset error:', e);
+                    }
+                } else {
+                    state = { ...DEFAULT_STATE, lessonsCompleted: [], weeklyProgress: [0, 0, 0, 0, 0, 0, 0] };
+                }
+                localStorage.setItem('rusgo_app_state', JSON.stringify(state));
+                updateGlobalMetrics();
                 renderAppPath();
                 renderLeaderboard();
                 renderAchievements();
@@ -1634,32 +1908,6 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(statsSection);
     }
 
-
-    /* ---------------------------------------------------
-     * Investor Presentation Modal Control (Pitch Deck)
-     * --------------------------------------------------- */
-    const investorModal = document.getElementById('investorModal');
-    const investorTriggers = document.querySelectorAll('.investor-trigger');
-    const modalCloseBtn = document.getElementById('modalCloseBtn');
-    const modalBackdrop = document.getElementById('modalBackdrop');
-
-    if (investorModal) {
-        const openModal = () => {
-            investorModal.classList.add('active');
-            document.body.classList.add('overflow-hidden');
-        };
-
-        const closeModal = () => {
-            investorModal.classList.remove('active');
-            if (!appInterface || appInterface.style.display !== 'flex') {
-                document.body.classList.remove('overflow-hidden');
-            }
-        };
-
-        investorTriggers.forEach(trigger => trigger.addEventListener('click', openModal));
-        if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
-        if (modalBackdrop) modalBackdrop.addEventListener('click', closeModal);
-    }
 
     // Landing page mobile app mockup switcher
     const appTabs = document.querySelectorAll('.app-tab');
