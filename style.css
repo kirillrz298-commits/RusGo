@@ -1168,6 +1168,60 @@ section {
 
 .mic-btn:hover { color: var(--primary); }
 
+.chat-input-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    padding: 0.4rem 0.4rem 0.4rem 1rem;
+    border-radius: var(--radius-md);
+    transition: var(--transition-smooth);
+}
+
+.chat-input-container:focus-within {
+    border-color: var(--primary);
+    background: rgba(34, 197, 94, 0.02);
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.chat-input-container input {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    padding: 0.25rem 0;
+}
+
+.chat-input-container input::placeholder {
+    color: var(--text-muted);
+}
+
+.send-btn {
+    background: var(--primary);
+    border: none;
+    color: #070B13;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
+}
+
+.send-btn:hover {
+    background: var(--primary-hover);
+    transform: scale(1.05);
+}
+
+.send-btn:active {
+    transform: scale(0.95);
+}
+
 /* Statistics Section */
 .stats {
     padding: 60px 0;
@@ -1864,11 +1918,58 @@ section {
 }
 
 /* 1. App Level Progress Path */
+.branch-selector-container {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin: 0.5rem 0 1.5rem 0;
+    padding: 0.35rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(10px);
+}
+
+.branch-tab-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.branch-tab-btn:hover {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.branch-tab-btn.active {
+    background: linear-gradient(135deg, var(--primary), var(--accent-purple));
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.branch-icon {
+    width: 18px;
+    height: 18px;
+    color: currentColor;
+}
+
 .interactive-path-board {
     border-radius: var(--radius-lg);
     padding: 3rem 1.5rem;
-    height: calc(100% - 6rem);
-    min-height: 480px;
+    height: calc(100% - 11rem);
+    min-height: 400px;
     overflow: hidden;
 }
 

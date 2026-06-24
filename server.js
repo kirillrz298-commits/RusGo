@@ -11,6 +11,15 @@ const DB_FILE = path.join(__dirname, 'rusgo.db');
 // Token signing key
 const JWT_SECRET = 'rusgo-super-secret-key-2026';
 
+let GROQ_API_KEY = process.env.GROQ_API_KEY;
+if (!GROQ_API_KEY && fs.existsSync(path.join(__dirname, '.env'))) {
+    const envContent = fs.readFileSync(path.join(__dirname, '.env'), 'utf8');
+    const match = envContent.match(/GROQ_API_KEY\s*=\s*(.*)/);
+    if (match) {
+        GROQ_API_KEY = match[1].trim().replace(/['"]/g, '');
+    }
+}
+
 // Middleware
 app.use(express.json());
 app.use(express.static(__dirname));
@@ -386,6 +395,40 @@ app.post('/api/reset', authenticateToken, (req, res) => {
             }
             res.json(formatUserResponse(row));
         });
+    });
+});
+
+// 6. POST Chat with Groq tutor proxy
+app.post('/api/chat', (req, res) => {
+    const { messages } = req.body;
+    if (!GROQ_API_KEY) {
+        return res.status(500).json({ error: "Groq API key not configured on server." });
+    }
+    fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${GROQ_API_KEY}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            model: "llama-3.3-70b-versatile",
+            messages: messages,
+            temperature: 0.7,
+            response_format: { type: "json_object" }
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(errText => {
+                throw new Error(`Groq API returned error: ${response.status} - ${errText}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => res.json(data))
+    .catch(e => {
+        console.error("Server chat proxy error:", e);
+        res.status(500).json({ error: e.message });
     });
 });
 

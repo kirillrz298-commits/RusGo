@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lessonsCompleted: [], // Level indexes completed (e.g. [1])
         weeklyProgress: [10, 0, 30, 15, 25, 10, 0], // XP per day Mon-Sun
         activeTab: 'map',
+        activeBranch: 'conversational',
         ttsEnabled: true
     };
 
@@ -36,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
             weeklyProgress: serverState.weekly_progress || [0, 0, 0, 0, 0, 0, 0],
             unlockedAchievements: serverState.unlocked_achievements || [],
             ttsEnabled: serverState.settings ? !!serverState.settings.ttsEnabled : true,
+            activeBranch: serverState.settings ? (serverState.settings.activeBranch || 'conversational') : 'conversational',
             username: serverState.username || '',
             avatar: serverState.avatar || '👤',
             id: serverState.id
@@ -79,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 completed_levels: state.lessonsCompleted,
                 weekly_progress: state.weeklyProgress,
                 unlocked_achievements: state.unlockedAchievements || [],
-                settings: { ttsEnabled: state.ttsEnabled }
+                settings: { ttsEnabled: state.ttsEnabled, activeBranch: state.activeBranch }
             };
             const res = await fetch(`${API_URL}/api/progress`, {
                 method: 'POST',
@@ -557,32 +559,106 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ---------------------------------------------------
      * DYNAMIC GAME PROGRESS PATH MAP
      * --------------------------------------------------- */
-    const levelsList = [
-        { id: 1, title: 'Алфавит', desc: 'Буквы и базовые звуки', icon: 'book-open' },
-        { id: 2, title: 'Слова', desc: 'Первый лексический запас', icon: 'apple' },
-        { id: 3, title: 'Фразы', desc: 'Построение простых предложений', icon: 'message-circle' },
-        { id: 4, title: 'Диалоги', desc: 'Сценарные разговоры в кафе', icon: 'messages-square' },
-        { id: 5, title: 'Свободное общение', desc: 'Темы с ИИ на выбор', icon: 'award' }
-    ];
+    const branchesData = {
+        conversational: {
+            title: 'Разговорный русский',
+            levels: [
+                { id: 101, title: 'Приветствие', desc: 'Как поздороваться и попрощаться', icon: 'message-square' },
+                { id: 102, title: 'Знакомство', desc: 'Как представиться и спросить имя', icon: 'user' },
+                { id: 103, title: 'Моя семья', desc: 'Члены семьи и общение', icon: 'users' },
+                { id: 104, title: 'Еда и кафе', desc: 'Заказ еды и напитков', icon: 'coffee' },
+                { id: 105, title: 'В магазине', desc: 'Покупки и цены', icon: 'shopping-cart' },
+                { id: 106, title: 'В городе', desc: 'Ориентация в пространстве', icon: 'map-pin' },
+                { id: 107, title: 'Погода', desc: 'Времена года и погода', icon: 'cloud-sun' },
+                { id: 108, title: 'Хобби и досуг', desc: 'Свободное время', icon: 'smile' },
+                { id: 109, title: 'Работа', desc: 'Профессии и занятость', icon: 'briefcase' },
+                { id: 110, title: 'Эмоции', desc: 'Как выразить чувства', icon: 'heart' }
+            ]
+        },
+        grammar: {
+            title: 'Грамматика и основы',
+            levels: [
+                { id: 201, title: 'Алфавит', desc: 'Буквы и базовые звуки', icon: 'book-open' },
+                { id: 202, title: 'Местоимения', desc: 'Я, ты, он, она и другие', icon: 'fingerprint' },
+                { id: 203, title: 'Числа 1-10', desc: 'Количественные числительные', icon: 'binary' },
+                { id: 204, title: 'Существительные', desc: 'Мужской, женский и средний род', icon: 'languages' },
+                { id: 205, title: 'Глаголы', desc: 'Базовые действия и спряжения', icon: 'activity' },
+                { id: 206, title: 'Прилагательные', desc: 'Цвета и описания', icon: 'palette' },
+                { id: 207, title: 'Вопросы', desc: 'Кто, что, где, когда, почему', icon: 'help-circle' },
+                { id: 208, title: 'Предлоги', desc: 'В, на, под, около', icon: 'compass' },
+                { id: 209, title: 'Множественное число', desc: 'Правила образования', icon: 'copy' },
+                { id: 210, title: 'Настоящее время', desc: 'Построение простых фраз', icon: 'clock' }
+            ]
+        },
+        culture: {
+            title: 'Культура и туризм',
+            levels: [
+                { id: 301, title: 'Русская кухня', desc: 'Борщ, пельмени и чай', icon: 'utensils' },
+                { id: 302, title: 'Метро Москвы', desc: 'Подземные дворцы столицы', icon: 'train' },
+                { id: 303, title: 'Сувениры', desc: 'Матрешка, шапка-ушанка', icon: 'gift' },
+                { id: 304, title: 'Города России', desc: 'Москва, Петербург, Казань', icon: 'landmark' },
+                { id: 305, title: 'Праздники', desc: 'Новый год, Масленица', icon: 'sparkles' },
+                { id: 306, title: 'В отеле', desc: 'Заселение и сервис', icon: 'key' },
+                { id: 307, title: 'В аэропорту', desc: 'Багаж, паспортный контроль', icon: 'plane' },
+                { id: 308, title: 'Времена года', desc: 'Природа и сезоны', icon: 'sun' },
+                { id: 309, title: 'Традиции', desc: 'Гостеприимство и баня', icon: 'home' },
+                { id: 310, title: 'Фразы выживания', desc: 'Экстренная помощь и знаки', icon: 'shield-alert' }
+            ]
+        }
+    };
+
+    function updateBranchSelectorUI() {
+        const branch = state.activeBranch || 'conversational';
+        const branchSelectorContainer = document.querySelector('.branch-selector-container');
+        if (branchSelectorContainer) {
+            branchSelectorContainer.querySelectorAll('.branch-tab-btn').forEach(btn => {
+                if (btn.getAttribute('data-branch') === branch) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+    }
+
+    // Wire branch selection buttons
+    const branchSelectorContainer = document.querySelector('.branch-selector-container');
+    if (branchSelectorContainer) {
+        branchSelectorContainer.addEventListener('click', (e) => {
+            const btn = e.target.closest('.branch-tab-btn');
+            if (!btn) return;
+            
+            const branch = btn.getAttribute('data-branch');
+            state.activeBranch = branch;
+            
+            saveState();
+            renderAppPath();
+        });
+    }
 
     function renderAppPath() {
+        updateBranchSelectorUI();
         const appPathNodes = document.getElementById('appPathNodes');
         const appPathProgress = document.getElementById('appPathProgress');
         if (!appPathNodes) return;
 
         appPathNodes.innerHTML = '';
         
+        const branchKey = state.activeBranch || 'conversational';
+        const currentBranch = branchesData[branchKey] || branchesData.conversational;
+        const branchLevels = currentBranch.levels;
+
         let activeFound = false;
 
-        levelsList.forEach((level, idx) => {
+        branchLevels.forEach((level, idx) => {
             const lessons = state.lessonsCompleted || [];
             const isCompleted = lessons.includes(level.id);
-            // Level is active if it is the first uncompleted level, or all previous are completed
+            // Level is active if it is the first uncompleted level in this branch, or all previous are completed
             let isActive = false;
             if (!isCompleted && !activeFound) {
                 isActive = true;
                 activeFound = true;
-            } else if (idx === 0 && lessons.length === 0) {
+            } else if (idx === 0 && lessons.filter(id => branchLevels.map(l => l.id).includes(id)).length === 0) {
                 isActive = true;
                 activeFound = true;
             }
@@ -621,8 +697,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Update vertical line progress percentage
         if (appPathProgress) {
-            let completedCount = (state.lessonsCompleted || []).length;
-            let percent = (completedCount / levelsList.length) * 100;
+            const lessons = state.lessonsCompleted || [];
+            const completedInBranch = branchLevels.filter(level => lessons.includes(level.id)).length;
+            let percent = (completedInBranch / branchLevels.length) * 100;
             appPathProgress.style.height = `${percent}%`;
         }
 
@@ -657,15 +734,322 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const lessonsData = {
-        1: {
-            title: 'Уровень 1: Алфавит',
-            xpReward: 25,
+        // Conversational Branch
+        101: {
+            title: 'Приветствие',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Формы приветствия и прощания <i data-lucide="message-square" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Изучите основные фразы:',
+                    vocab: [
+                        { cyr: 'Привет', pron: '[Pri-vet]', en: 'Hello (informal)', icon: 'hand' },
+                        { cyr: 'Здравствуйте', pron: '[Zdrav-stvuy-te]', en: 'Hello (formal)', icon: 'users' },
+                        { cyr: 'Пока', pron: '[Pa-ka]', en: 'Bye (informal)', icon: 'smile' },
+                        { cyr: 'До свидания', pron: '[Do svi-da-ni-ya]', en: 'Goodbye (formal)', icon: 'log-out' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Как сказать привет другу в неформальной обстановке?',
+                    options: ['До свидания', 'Здравствуйте', 'Привет', 'Пожалуйста'],
+                    correctIdx: 2
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Выберите вежливое и уважительное прощание:',
+                    options: ['Привет', 'До свидания', 'Пока', 'Здорово'],
+                    correctIdx: 1
+                }
+            ]
+        },
+        102: {
+            title: 'Знакомство',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Знакомимся с людьми <i data-lucide="user" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Кликните на слово, чтобы услышать:',
+                    vocab: [
+                        { cyr: 'Меня зовут', pron: '[Me-nya za-vut]', en: 'My name is', icon: 'user' },
+                        { cyr: 'Как тебя зовут?', pron: '[Kak te-bya za-vut?]', en: 'What is your name?', icon: 'help-circle' },
+                        { cyr: 'Приятно познакомиться', pron: '[Pri-yat-na pa-zna-ko-mit-sya]', en: 'Nice to meet you', icon: 'heart' }
+                    ]
+                },
+                {
+                    type: 'constructor',
+                    title: 'Соберите фразу: "Как тебя зовут?"',
+                    desc: 'Выберите слова в правильном порядке:',
+                    scrambled: ['тебя', 'зовут', 'Как', '?'],
+                    correctOrder: ['Как', 'тебя', 'зовут', '?']
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Что ответить собеседнику на фразу "Меня зовут Анна"?',
+                    options: ['До свидания', 'Приятно познакомиться', 'Где метро?', 'Пока'],
+                    correctIdx: 1
+                }
+            ]
+        },
+        103: {
+            title: 'Моя семья',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Члены семьи <i data-lucide="users" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Нажмите для перевода:',
+                    vocab: [
+                        { cyr: 'Мама', pron: '[Ma-ma]', en: 'Mother', icon: 'heart' },
+                        { cyr: 'Папа', pron: '[Pa-pa]', en: 'Father', icon: 'award' },
+                        { cyr: 'Брат', pron: '[Brat]', en: 'Brother', icon: 'smile' },
+                        { cyr: 'Сестра', pron: '[Ses-tra]', en: 'Sister', icon: 'smile' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Как переводится слово "Мама"?',
+                    options: ['Father', 'Sister', 'Mother', 'Brother'],
+                    correctIdx: 2
+                },
+                {
+                    type: 'constructor',
+                    title: 'Соберите фразу: "У меня есть брат"',
+                    desc: 'Расположите карточки слов:',
+                    scrambled: ['брат', 'У', 'есть', 'меня'],
+                    correctOrder: ['У', 'меня', 'есть', 'брат']
+                }
+            ]
+        },
+        104: {
+            title: 'Еда и кафе',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Еда и напитки <i data-lucide="coffee" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Нажмите, чтобы прослушать:',
+                    vocab: [
+                        { cyr: 'Кофе', pron: '[Ko-fe]', en: 'Coffee', icon: 'coffee' },
+                        { cyr: 'Чай', pron: '[Chay]', en: 'Tea', icon: 'cup-soap' },
+                        { cyr: 'Вода', pron: '[Va-da]', en: 'Water', icon: 'droplet' },
+                        { cyr: 'Суп', pron: '[Sup]', en: 'Soup', icon: 'utensils' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Какой напиток переводится как "Tea"?',
+                    options: ['Кофе', 'Вода', 'Чай', 'Суп'],
+                    correctIdx: 2
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Как вежливо попросить кофе?',
+                    options: ['Эй, кофе!', 'Кофе, пожалуйста.', 'Я не хочу кофе.', 'Где тут суп?'],
+                    correctIdx: 1
+                }
+            ]
+        },
+        105: {
+            title: 'В магазине',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Покупки в магазине <i data-lucide="shopping-cart" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Изучите новые слова:',
+                    vocab: [
+                        { cyr: 'Сколько стоит?', pron: '[Skol-ko sto-it?]', en: 'How much does it cost?', icon: 'help-circle' },
+                        { cyr: 'Деньги', pron: '[Den-gi]', en: 'Money', icon: 'coins' },
+                        { cyr: 'Магазин', pron: '[Ma-ga-zin]', en: 'Shop', icon: 'shopping-bag' },
+                        { cyr: 'Хлеб', pron: '[Hleb]', en: 'Bread', icon: 'chevrons-right' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Где мы обычно покупаем хлеб?',
+                    options: ['В метро', 'В магазине', 'В аптеке', 'В лесу'],
+                    correctIdx: 1
+                },
+                {
+                    type: 'constructor',
+                    title: 'Соберите фразу: "Сколько это стоит?"',
+                    desc: 'Порядок слов:',
+                    scrambled: ['стоит', 'это', 'Сколько', '?'],
+                    correctOrder: ['Сколько', 'это', 'стоит', '?']
+                }
+            ]
+        },
+        106: {
+            title: 'В городе',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Ориентация в городе <i data-lucide="map-pin" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Ключевые слова для туриста:',
+                    vocab: [
+                        { cyr: 'Улица', pron: '[U-li-tsa]', en: 'Street', icon: 'map' },
+                        { cyr: 'Метро', pron: '[Met-ro]', en: 'Subway', icon: 'train' },
+                        { cyr: 'Аптека', pron: '[Ap-te-ka]', en: 'Pharmacy', icon: 'activity' },
+                        { cyr: 'Где находится?', pron: '[Gde na-ho-dit-sya?]', en: 'Where is...?', icon: 'navigation' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Что такое "Аптека"?',
+                    options: ['Subway', 'Street', 'Pharmacy', 'Hotel'],
+                    correctIdx: 2
+                },
+                {
+                    type: 'constructor',
+                    title: 'Соберите фразу: "Где находится метро?"',
+                    desc: 'Соберите предложение:',
+                    scrambled: ['метро', 'Где', 'находится', '?'],
+                    correctOrder: ['Где', 'находится', 'метро', '?']
+                }
+            ]
+        },
+        107: {
+            title: 'Погода',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Описание погоды <i data-lucide="cloud-sun" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Изучите слова:',
+                    vocab: [
+                        { cyr: 'Холодно', pron: '[Ho-lad-na]', en: 'Cold', icon: 'snowflake' },
+                        { cyr: 'Жарко', pron: '[Zhar-ka]', en: 'Hot', icon: 'sun' },
+                        { cyr: 'Дождь', pron: '[Dozhd]', en: 'Rain', icon: 'cloud-rain' },
+                        { cyr: 'Солнце', pron: '[Soln-tse]', en: 'Sun', icon: 'sun' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Какое слово описывает погоду зимой в Сибири?',
+                    options: ['Жарко', 'Солнце', 'Холодно', 'Тепло'],
+                    correctIdx: 2
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Как переводится "Rain"?',
+                    options: ['Солнце', 'Дождь', 'Снег', 'Ветер'],
+                    correctIdx: 1
+                }
+            ]
+        },
+        108: {
+            title: 'Хобби и досуг',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Увлечения и хобби <i data-lucide="smile" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Нажмите для перевода:',
+                    vocab: [
+                        { cyr: 'Музыка', pron: '[Mu-zy-ka]', en: 'Music', icon: 'music' },
+                        { cyr: 'Спорт', pron: '[Sport]', en: 'Sport', icon: 'activity' },
+                        { cyr: 'Книга', pron: '[Kni-ga]', en: 'Book', icon: 'book' },
+                        { cyr: 'Кино', pron: '[Ki-no]', en: 'Cinema', icon: 'film' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Как сказать "I read books"? (Я читаю...)',
+                    options: ['Спорт', 'Книги', 'Кино', 'Музыку'],
+                    correctIdx: 1
+                },
+                {
+                    type: 'constructor',
+                    title: 'Соберите фразу: "Я люблю спорт"',
+                    desc: 'Порядок слов:',
+                    scrambled: ['люблю', 'Я', 'спорт'],
+                    correctOrder: ['Я', 'люблю', 'спорт']
+                }
+            ]
+        },
+        109: {
+            title: 'Работа',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Профессии и занятость <i data-lucide="briefcase" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Изучите названия:',
+                    vocab: [
+                        { cyr: 'Врач', pron: '[Vrach]', en: 'Doctor', icon: 'heart-pulse' },
+                        { cyr: 'Учитель', pron: '[U-chi-tel]', en: 'Teacher', icon: 'book-open' },
+                        { cyr: 'Офис', pron: '[O-fis]', en: 'Office', icon: 'building' },
+                        { cyr: 'Работа', pron: '[Ra-bo-ta]', en: 'Work', icon: 'briefcase' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Кто обучает детей в школе?',
+                    options: ['Врач', 'Учитель', 'Водитель', 'Строитель'],
+                    correctIdx: 1
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Как переводится слово "Врач"?',
+                    options: ['Doctor', 'Teacher', 'Engineer', 'Office'],
+                    correctIdx: 0
+                }
+            ]
+        },
+        110: {
+            title: 'Эмоции',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Чувства и эмоции <i data-lucide="heart" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Изучите слова:',
+                    vocab: [
+                        { cyr: 'Счастье', pron: '[Schas-tye]', en: 'Happiness', icon: 'smile' },
+                        { cyr: 'Радость', pron: '[Ra-dost]', en: 'Joy', icon: 'award' },
+                        { cyr: 'Грусть', pron: '[Grust]', en: 'Sadness', icon: 'frown' },
+                        { cyr: 'Страх', pron: '[Strah]', en: 'Fear', icon: 'shield-alert' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Какое слово означает "Happiness"?',
+                    options: ['Грусть', 'Счастье', 'Страх', 'Работа'],
+                    correctIdx: 1
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Какое слово противоположно по смыслу слову "Радость"?',
+                    options: ['Счастье', 'Грусть', 'Спорт', 'Привет'],
+                    correctIdx: 1
+                }
+            ]
+        },
+
+        // Grammar Branch
+        201: {
+            title: 'Алфавит',
+            xpReward: 20,
             gemsReward: 5,
             slides: [
                 {
                     type: 'alphabet_intro',
-                    title: 'Изучите основные русские буквы <i data-lucide="book-open" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
-                    desc: 'Нажмите на букву, чтобы прослушать ее правильное произношение:',
+                    title: 'Русские буквы <i data-lucide="book-open" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Нажмите на букву для прослушивания правильного звука:',
                     cards: [
                         { cyr: 'А', lat: 'A (as in father)', word: 'Арбуз (Watermelon)' },
                         { cyr: 'Б', lat: 'B (as in book)', word: 'Банан (Banana)' },
@@ -677,124 +1061,597 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 {
                     type: 'quiz_choice',
-                    title: 'Какая буква обозначает звук [D]?',
+                    title: 'Какая русская буква передает звук [B]?',
                     options: ['А', 'Б', 'Д', 'К'],
-                    correctIdx: 2
+                    correctIdx: 1
                 },
                 {
                     type: 'quiz_choice',
-                    title: 'С какого звука начинается русское слово "Телефон"?',
-                    options: ['К', 'М', 'Т', 'Б'],
+                    title: 'С какой буквы начинается слово "Дом"?',
+                    options: ['К', 'М', 'Д', 'Т'],
                     correctIdx: 2
                 }
             ]
         },
-        2: {
-            title: 'Уровень 2: Слова',
-            xpReward: 30,
-            gemsReward: 8,
+        202: {
+            title: 'Местоимения',
+            xpReward: 20,
+            gemsReward: 5,
             slides: [
                 {
                     type: 'vocab_intro',
-                    title: 'Базовые русские слова <i data-lucide="apple" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
-                    desc: 'Нажмите на карточку для перевода и озвучивания:',
+                    title: 'Личные местоимения <i data-lucide="fingerprint" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Нажмите, чтобы прослушать перевод:',
                     vocab: [
-                        { cyr: 'Кот', pron: '[Kot]', en: 'Cat', icon: 'cat' },
-                        { cyr: 'Привет', pron: '[Pri-vet]', en: 'Hello', icon: 'hand' },
-                        { cyr: 'Спасибо', pron: '[Spa-si-ba]', en: 'Thank you', icon: 'heart' },
-                        { cyr: 'Яблоко', pron: '[Yab-la-ka]', en: 'Apple', icon: 'apple' }
+                        { cyr: 'Я', pron: '[Ya]', en: 'I', icon: 'user' },
+                        { cyr: 'Ты', pron: '[Ty]', en: 'You (singular/informal)', icon: 'user' },
+                        { cyr: 'Он', pron: '[On]', en: 'He', icon: 'user' },
+                        { cyr: 'Она', pron: '[A-na]', en: 'She', icon: 'user' }
                     ]
                 },
                 {
                     type: 'quiz_choice',
-                    title: 'Как переводится слово "Спасибо"?',
-                    options: ['Hello', 'Cat', 'Thank you', 'Apple'],
+                    title: 'Какое местоимение означает "She"?',
+                    options: ['Я', 'Ты', 'Он', 'Она'],
+                    correctIdx: 3
+                },
+                {
+                    type: 'constructor',
+                    title: 'Соберите фразу: "Он мой друг"',
+                    desc: 'Порядок слов:',
+                    scrambled: ['друг', 'Он', 'мой'],
+                    correctOrder: ['Он', 'мой', 'друг']
+                }
+            ]
+        },
+        203: {
+            title: 'Числа 1-10',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Считаем по-русски <i data-lucide="binary" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Цифры от 1 до 5:',
+                    vocab: [
+                        { cyr: 'Один', pron: '[A-din]', en: '1 / One', icon: 'chevron-right' },
+                        { cyr: 'Два', pron: '[Dva]', en: '2 / Two', icon: 'chevrons-right' },
+                        { cyr: 'Три', pron: '[Tri]', en: '3 / Three', icon: 'chevrons-right' },
+                        { cyr: 'Пять', pron: '[Pyat]', en: '5 / Five', icon: 'star' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Какая цифра переводится как "Two"?',
+                    options: ['Один', 'Три', 'Два', 'Пять'],
                     correctIdx: 2
                 },
                 {
                     type: 'quiz_choice',
-                    title: 'Найдите перевод для слова "Кот":',
-                    options: ['Dog', 'Cat', 'House', 'Phone'],
-                    correctIdx: 1
+                    title: 'Сколько пальцев на руке у человека?',
+                    options: ['Два', 'Один', 'Три', 'Пять'],
+                    correctIdx: 3
                 }
             ]
         },
-        3: {
-            title: 'Уровень 3: Фразы',
-            xpReward: 35,
-            gemsReward: 10,
+        204: {
+            title: 'Существительные',
+            xpReward: 20,
+            gemsReward: 5,
             slides: [
                 {
-                    type: 'constructor',
-                    title: 'Соберите фразу: "Как тебя зовут?" <i data-lucide="message-circle" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
-                    desc: 'Нажимайте на слова в правильном порядке:',
-                    scrambled: ['зовут', 'тебя', 'Как', '?'],
-                    correctOrder: ['Как', 'тебя', 'зовут', '?']
+                    type: 'vocab_intro',
+                    title: 'Род существительных <i data-lucide="languages" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Примеры мужского, женского и среднего рода:',
+                    vocab: [
+                        { cyr: 'Стол', pron: '[Stol]', en: 'Table (Masculine - ends in consonant)', icon: 'square' },
+                        { cyr: 'Книга', pron: '[Kni-ga]', en: 'Book (Feminine - ends in A)', icon: 'book' },
+                        { cyr: 'Окно', pron: '[Ak-no]', en: 'Window (Neuter - ends in O)', icon: 'layout' }
+                    ]
                 },
                 {
-                    type: 'constructor',
-                    title: 'Соберите фразу: "Где находится метро?" <i data-lucide="train" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
-                    desc: 'Соберите предложение:',
-                    scrambled: ['метро', 'находится', '?', 'Где'],
-                    correctOrder: ['Где', 'находится', 'метро', '?']
-                }
-            ]
-        },
-        4: {
-            title: 'Уровень 4: Диалоги',
-            xpReward: 40,
-            gemsReward: 12,
-            slides: [
-                {
                     type: 'quiz_choice',
-                    title: 'Вы в русском ресторане. Как вежливо заказать борщ?',
-                    options: [
-                        'Эй, борщ быстро!',
-                        'Борщ, пожалуйста.',
-                        'Я не люблю борщ.',
-                        'Где мой суп?'
-                    ],
+                    title: 'Какого рода слово "Книга"?',
+                    options: ['Мужской род', 'Женский род', 'Средний род', 'Общий род'],
                     correctIdx: 1
                 },
                 {
                     type: 'quiz_choice',
-                    title: 'Вас спрашивают: "Как дела?". Что ответить вежливо и стандартно?',
-                    options: [
-                        'Хорошо, спасибо! А у вас?',
-                        'Плохо, отвали.',
-                        'Я иду в метро.',
-                        'Борщ, пожалуйста.'
-                    ],
+                    title: 'Слово "Окно" относится к какому роду?',
+                    options: ['Мужской род', 'Женский род', 'Средний род', 'Нет рода'],
+                    correctIdx: 2
+                }
+            ]
+        },
+        205: {
+            title: 'Глаголы',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Начальная форма глаголов <i data-lucide="activity" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Инфинитивы базовых действий:',
+                    vocab: [
+                        { cyr: 'Идти', pron: '[Id-ti]', en: 'To go', icon: 'navigation' },
+                        { cyr: 'Читать', pron: '[Chi-tat]', en: 'To read', icon: 'book-open' },
+                        { cyr: 'Писать', pron: '[Pi-sat]', en: 'To write', icon: 'pen-tool' },
+                        { cyr: 'Знать', pron: '[Znat]', en: 'To know', icon: 'brain' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Какой глагол переводится как "To read"?',
+                    options: ['Идти', 'Читать', 'Писать', 'Знать'],
+                    correctIdx: 1
+                },
+                {
+                    type: 'constructor',
+                    title: 'Соберите фразу: "Я хочу читать"',
+                    desc: 'Порядок слов:',
+                    scrambled: ['читать', 'хочу', 'Я'],
+                    correctOrder: ['Я', 'хочу', 'читать']
+                }
+            ]
+        },
+        206: {
+            title: 'Прилагательные',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Свойства и цвета <i data-lucide="palette" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Изучите прилагательные:',
+                    vocab: [
+                        { cyr: 'Красный', pron: '[Kras-ny]', en: 'Red', icon: 'palette' },
+                        { cyr: 'Синий', pron: '[Si-ni]', en: 'Blue', icon: 'palette' },
+                        { cyr: 'Большой', pron: '[Bal-shoy]', en: 'Big', icon: 'maximize' },
+                        { cyr: 'Новый', pron: '[No-vy]', en: 'New', icon: 'sparkles' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Как по-русски сказать "Red"?',
+                    options: ['Синий', 'Красный', 'Большой', 'Новый'],
+                    correctIdx: 1
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Какое прилагательное означает "Big"?',
+                    options: ['Новый', 'Синий', 'Красный', 'Большой'],
+                    correctIdx: 3
+                }
+            ]
+        },
+        207: {
+            title: 'Вопросы',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Вопросительные слова <i data-lucide="help-circle" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Изучите вопросительные местоимения:',
+                    vocab: [
+                        { cyr: 'Кто?', pron: '[Kto?]', en: 'Who?', icon: 'help-circle' },
+                        { cyr: 'Что?', pron: '[Chto?]', en: 'What?', icon: 'help-circle' },
+                        { cyr: 'Где?', pron: '[Gde?]', en: 'Where?', icon: 'help-circle' },
+                        { cyr: 'Когда?', pron: '[Kag-da?]', en: 'When?', icon: 'help-circle' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Какое слово переводится как "Where"?',
+                    options: ['Кто', 'Что', 'Где', 'Когда'],
+                    correctIdx: 2
+                },
+                {
+                    type: 'constructor',
+                    title: 'Соберите вопрос: "Кто это такой ?"',
+                    desc: 'Порядок слов:',
+                    scrambled: ['такой', 'Кто', 'это', '?'],
+                    correctOrder: ['Кто', 'это', 'такой', '?']
+                }
+            ]
+        },
+        208: {
+            title: 'Предлоги',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Предлоги места <i data-lucide="compass" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Предлоги положения предметов:',
+                    vocab: [
+                        { cyr: 'В', pron: '[V]', en: 'In / Inside', icon: 'box' },
+                        { cyr: 'На', pron: '[Na]', en: 'On / On top of', icon: 'chevrons-up' },
+                        { cyr: 'Под', pron: '[Pod]', en: 'Under', icon: 'chevrons-down' },
+                        { cyr: 'Около', pron: '[O-ka-la]', en: 'Near / Next to', icon: 'align-justify' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Как сказать "The cat is in the box" (Кот находится ___ коробке)?',
+                    options: ['на', 'под', 'в', 'около'],
+                    correctIdx: 2
+                },
+                {
+                    type: 'constructor',
+                    title: 'Соберите фразу: "Книга лежит на столе"',
+                    desc: 'Расположите карточки:',
+                    scrambled: ['на', 'лежат', 'лежит', 'Книга', 'столе'],
+                    correctOrder: ['Книга', 'лежит', 'на', 'столе']
+                }
+            ]
+        },
+        209: {
+            title: 'Множественное число',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Множественное число существительных <i data-lucide="copy" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Один предмет против нескольких:',
+                    vocab: [
+                        { cyr: 'Книги', pron: '[Kni-gi]', en: 'Books', icon: 'copy' },
+                        { cyr: 'Дома', pron: '[Da-ma]', en: 'Houses', icon: 'copy' },
+                        { cyr: 'Коты', pron: '[Ka-ty]', en: 'Cats', icon: 'copy' },
+                        { cyr: 'Яблоки', pron: '[Yab-la-ki]', en: 'Apples', icon: 'copy' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Какое слово является множественным числом от слова "Кот"?',
+                    options: ['Книги', 'Коты', 'Яблоки', 'Дома'],
+                    correctIdx: 1
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Какое слово переводится как "Books"?',
+                    options: ['Коты', 'Дома', 'Книги', 'Яблоки'],
+                    correctIdx: 2
+                }
+            ]
+        },
+        210: {
+            title: 'Настоящее время',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Глаголы в настоящем времени <i data-lucide="clock" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Спряжение глагола "Говорить" (to speak):',
+                    vocab: [
+                        { cyr: 'Я говорю', pron: '[Ya ga-va-ryu]', en: 'I speak', icon: 'user' },
+                        { cyr: 'Ты говоришь', pron: '[Ty ga-va-rish]', en: 'You speak', icon: 'user' },
+                        { cyr: 'Он говорит', pron: '[On ga-va-rit]', en: 'He speaks', icon: 'user' },
+                        { cyr: 'Мы говорим', pron: '[My ga-va-rim]', en: 'We speak', icon: 'users' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Выберите верную форму глагола: "Мы ___ по-русски" (We speak...)',
+                    options: ['говорю', 'говоришь', 'говорим', 'говорит'],
+                    correctIdx: 2
+                },
+                {
+                    type: 'constructor',
+                    title: 'Соберите фразу: "Ты говоришь очень хорошо"',
+                    desc: 'Расположите слова:',
+                    scrambled: ['хорошо', 'говоришь', 'Ты', 'очень'],
+                    correctOrder: ['Ты', 'говоришь', 'очень', 'хорошо']
+                }
+            ]
+        },
+
+        // Culture Branch
+        301: {
+            title: 'Русская кухня',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Русская кулинария <i data-lucide="utensils" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Национальные русские блюда:',
+                    vocab: [
+                        { cyr: 'Борщ', pron: '[Borsh]', en: 'Beetroot soup', icon: 'soup' },
+                        { cyr: 'Блины', pron: '[Bli-ny]', en: 'Pancakes', icon: 'pizza' },
+                        { cyr: 'Пельмени', pron: '[Pel-me-ni]', en: 'Dumplings', icon: 'cookie' },
+                        { cyr: 'Самовар', pron: '[Sa-ma-var]', en: 'Traditional water boiler', icon: 'cup-soap' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Какой суп традиционно имеет ярко-красный цвет из-за свеклы?',
+                    options: ['Суп-пюре', 'Борщ', 'Грибной суп', 'Куриный бульон'],
+                    correctIdx: 1
+                },
+                {
+                    type: 'constructor',
+                    title: 'Соберите предложение: "Я очень люблю блины"',
+                    desc: 'Порядок слов:',
+                    scrambled: ['люблю', 'Я', 'блины', 'очень'],
+                    correctOrder: ['Я', 'очень', 'люблю', 'блины']
+                }
+            ]
+        },
+        302: {
+            title: 'Метро Москвы',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Транспорт и метро Москвы <i data-lucide="train" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Слова для передвижения:',
+                    vocab: [
+                        { cyr: 'Станция', pron: '[Stan-tsi-ya]', en: 'Station', icon: 'map-pin' },
+                        { cyr: 'Поезд', pron: '[Po-ezd]', en: 'Train', icon: 'train' },
+                        { cyr: 'Переход', pron: '[Pe-re-hod]', en: 'Transfer / Crosswalk', icon: 'navigation' },
+                        { cyr: 'Эскалатор', pron: '[Es-ka-la-tar]', en: 'Escalator', icon: 'chevrons-down' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Как переводится слово "Поезд"?',
+                    options: ['Station', 'Train', 'Bus', 'Plane'],
+                    correctIdx: 1
+                },
+                {
+                    type: 'constructor',
+                    title: 'Соберите фразу: "Где находится переход ?"',
+                    desc: 'Порядок слов:',
+                    scrambled: ['находится', 'Где', 'переход', '?'],
+                    correctOrder: ['Где', 'находится', 'переход', '?']
+                }
+            ]
+        },
+        303: {
+            title: 'Сувениры',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Сувениры из России <i data-lucide="gift" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Традиционные русские подарки:',
+                    vocab: [
+                        { cyr: 'Матрешка', pron: '[Mat-ryosh-ka]', en: 'Wooden nesting doll', icon: 'toy-brick' },
+                        { cyr: 'Ушанка', pron: '[U-shan-ka]', en: 'Fur hat with ear flaps', icon: 'sparkles' },
+                        { cyr: 'Балалайка', pron: '[Ba-la-lay-ka]', en: 'Three-stringed guitar', icon: 'music' },
+                        { cyr: 'Самовар', pron: '[Sa-ma-var]', en: 'Metal tea kettle', icon: 'cup-soap' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Какой сувенир представляет собой деревянную куклу, внутри которой прячутся другие куклы?',
+                    options: ['Балалайка', 'Матрешка', 'Ушанка', 'Самовар'],
+                    correctIdx: 1
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Что такое "Ушанка"?',
+                    options: ['Традиционная теплая меховая шапка', 'Музыкальный инструмент', 'Деревянная игрушка', 'Напиток'],
                     correctIdx: 0
                 }
             ]
         },
-        5: {
-            title: 'Уровень 5: Свободное общение',
-            xpReward: 50,
-            gemsReward: 15,
+        304: {
+            title: 'Города России',
+            xpReward: 20,
+            gemsReward: 5,
             slides: [
                 {
-                    type: 'quiz_choice',
-                    title: 'Какое из этих выражений означает пожелание хорошего пути?',
-                    options: [
-                        'Приятного аппетита!',
-                        'Счастливого пути!',
-                        'Доброе утро!',
-                        'С днем рождения!'
-                    ],
-                    correctIdx: 1
+                    type: 'vocab_intro',
+                    title: 'География России <i data-lucide="landmark" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Крупнейшие города страны:',
+                    vocab: [
+                        { cyr: 'Москва', pron: '[Mas-kva]', en: 'Moscow (Capital)', icon: 'map' },
+                        { cyr: 'Петербург', pron: '[Pe-ter-burg]', en: 'St. Petersburg', icon: 'map' },
+                        { cyr: 'Казань', pron: '[Ka-zan]', en: 'Kazan', icon: 'map' },
+                        { cyr: 'Сибирь', pron: '[Si-bir]', en: 'Siberia (Region)', icon: 'snowflake' }
+                    ]
                 },
                 {
                     type: 'quiz_choice',
-                    title: 'Как сказать по-русски "Good job"?',
-                    options: [
-                        'Отличная работа!',
-                        'До свидания!',
-                        'Пожалуйста.',
-                        'Где метро?'
-                    ],
-                    correctIdx: 0
+                    title: 'Какой город является столицей Российской Федерации?',
+                    options: ['Петербург', 'Москва', 'Казань', 'Владивосток'],
+                    correctIdx: 1
+                },
+                {
+                    type: 'constructor',
+                    title: 'Соберите предложение: "Я еду в Москву"',
+                    desc: 'Порядок слов:',
+                    scrambled: ['Москву', 'еду', 'Я', 'в'],
+                    correctOrder: ['Я', 'в', 'еду', 'Москву']
+                }
+            ]
+        },
+        305: {
+            title: 'Праздники',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Русские праздники и традиции <i data-lucide="sparkles" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Популярные праздничные дни:',
+                    vocab: [
+                        { cyr: 'Новый год', pron: '[No-vy god]', en: 'New Year', icon: 'gift' },
+                        { cyr: 'Масленица', pron: '[Mas-le-ni-tsa]', en: 'Butter Week / pancake festival', icon: 'sun' },
+                        { cyr: 'Рождество', pron: '[Razh-dest-vo]', en: 'Christmas', icon: 'star' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'На какой праздник в России традиционно пекут блины и прощаются с зимой?',
+                    options: ['Новый год', 'Масленица', 'День победы', 'Рождество'],
+                    correctIdx: 1
+                },
+                {
+                    type: 'constructor',
+                    title: 'Соберите поздравление: "С Новым годом !"',
+                    desc: 'Порядок карточек:',
+                    scrambled: ['годом', 'С', '!', 'Новым'],
+                    correctOrder: ['С', 'Новым', 'годом', '!']
+                }
+            ]
+        },
+        306: {
+            title: 'В отеле',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Проживание в отеле <i data-lucide="key" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Слова для общения на ресепшн:',
+                    vocab: [
+                        { cyr: 'Номер', pron: '[No-mer]', en: 'Room', icon: 'key' },
+                        { cyr: 'Ключ', pron: '[Klyuch]', en: 'Key', icon: 'key' },
+                        { cyr: 'Ресепшн', pron: '[Re-sep-shn]', en: 'Reception', icon: 'user' },
+                        { cyr: 'Паспорт', pron: '[Pas-part]', en: 'Passport', icon: 'file-text' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Какое слово переводится как "Key"?',
+                    options: ['Номер', 'Паспорт', 'Ключ', 'Отель'],
+                    correctIdx: 2
+                },
+                {
+                    type: 'constructor',
+                    title: 'Соберите фразу: "Покажите ваш паспорт пожалуйста"',
+                    desc: 'Порядок слов:',
+                    scrambled: ['пожалуйста', 'паспорт', 'Покажите', 'ваш'],
+                    correctOrder: ['Покажите', 'ваш', 'паспорт', 'пожалуйста']
+                }
+            ]
+        },
+        307: {
+            title: 'В аэропорту',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'В аэропорту <i data-lucide="plane" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Слова перед полетом:',
+                    vocab: [
+                        { cyr: 'Самолет', pron: '[Sa-ma-lyot]', en: 'Airplane', icon: 'plane' },
+                        { cyr: 'Билет', pron: '[Bi-let]', en: 'Ticket', icon: 'ticket' },
+                        { cyr: 'Багаж', pron: '[Ba-gazh]', en: 'Luggage', icon: 'luggage' },
+                        { cyr: 'Выход', pron: '[Vy-had]', en: 'Gate / Exit', icon: 'log-out' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Какое слово означает ваш чемодан или сумки?',
+                    options: ['Самолет', 'Билет', 'Багаж', 'Выход'],
+                    correctIdx: 2
+                },
+                {
+                    type: 'constructor',
+                    title: 'Соберите фразу: "Где мой багаж ?"',
+                    desc: 'Порядок слов:',
+                    scrambled: ['багаж', 'мой', 'Где', '?'],
+                    correctOrder: ['Где', 'мой', 'багаж', '?']
+                }
+            ]
+        },
+        308: {
+            title: 'Времена года',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Времена года <i data-lucide="sun" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Сезоны года:',
+                    vocab: [
+                        { cyr: 'Зима', pron: '[Zi-ma]', en: 'Winter', icon: 'snowflake' },
+                        { cyr: 'Весна', pron: '[Ves-na]', en: 'Spring', icon: 'cloud-rain' },
+                        { cyr: 'Лето', pron: '[Le-ta]', en: 'Summer', icon: 'sun' },
+                        { cyr: 'Осень', pron: '[O-sin]', en: 'Autumn', icon: 'leaf' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Когда в России очень холодно и лежит много снега?',
+                    options: ['Лето', 'Весна', 'Осень', 'Зима'],
+                    correctIdx: 3
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Как переводится "Summer"?',
+                    options: ['Зима', 'Лето', 'Весна', 'Осень'],
+                    correctIdx: 1
+                }
+            ]
+        },
+        309: {
+            title: 'Традиции',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Русский быт и традиции <i data-lucide="home" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Популярные культурные элементы:',
+                    vocab: [
+                        { cyr: 'Русская баня', pron: '[Rus-ka-ya ba-nya]', en: 'Russian sauna / bathhouse', icon: 'home' },
+                        { cyr: 'Дача', pron: '[Da-cha]', en: 'Summer country cottage', icon: 'home' },
+                        { cyr: 'Веник', pron: '[Ve-nik]', en: 'Bathhouse whisk of birch twigs', icon: 'leaf' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Где россияне традиционно отдыхают за городом летом, выращивают овощи и сажают цветы?',
+                    options: ['В метро', 'На даче', 'В аэропорту', 'В отеле'],
+                    correctIdx: 1
+                },
+                {
+                    type: 'constructor',
+                    title: 'Соберите предложение: "Мы едем на дачу"',
+                    desc: 'Порядок карточек:',
+                    scrambled: ['дачу', 'едем', 'Мы', 'на'],
+                    correctOrder: ['Мы', 'на', 'едем', 'дачу']
+                }
+            ]
+        },
+        310: {
+            title: 'Фразы выживания',
+            xpReward: 20,
+            gemsReward: 5,
+            slides: [
+                {
+                    type: 'vocab_intro',
+                    title: 'Помощь и безопасность <i data-lucide="shield-alert" class="inline-icon text-primary" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -2px; margin-left: 0.25rem;"></i>',
+                    desc: 'Критические фразы:',
+                    vocab: [
+                        { cyr: 'Помогите!', pron: '[Pa-ma-gi-te!]', en: 'Help!', icon: 'shield-alert' },
+                        { cyr: 'Где больница?', pron: '[Gde bal-ni-tsa?]', en: 'Where is the hospital?', icon: 'heart-pulse' },
+                        { cyr: 'Я заблудился', pron: '[Ya za-blu-dil-sya]', en: 'I am lost', icon: 'map-pin' },
+                        { cyr: 'Полиция', pron: '[Pa-li-tsi-ya]', en: 'Police', icon: 'shield' }
+                    ]
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Какую фразу использовать, если вам срочно нужна помощь?',
+                    options: ['Пока!', 'Помогите!', 'Здравствуйте', 'Сколько стоит?'],
+                    correctIdx: 1
+                },
+                {
+                    type: 'constructor',
+                    title: 'Соберите фразу: "Где находится ближайшая больница ?"',
+                    desc: 'Порядок слов:',
+                    scrambled: ['ближайшая', 'больница', 'находится', 'Где', '?'],
+                    correctOrder: ['Где', 'находится', 'ближайшая', 'больница', '?']
                 }
             ]
         }
@@ -967,10 +1824,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 cardWrapper.classList.remove('flipped');
                 setTimeout(() => {
                     const item = slide.vocab[vocabIndex];
-                    cardWrapper.querySelector('.vocab-emoji').textContent = item.emoji;
+                    cardWrapper.querySelector('.vocab-emoji').innerHTML = `<i data-lucide="${item.icon}" style="width: 4rem; height: 4rem; color: var(--primary);"></i>`;
                     cardWrapper.querySelector('.vocab-word-ru').textContent = item.cyr;
                     cardWrapper.querySelector('.vocab-word-pron').textContent = item.pron;
-                    cardWrapper.querySelector('.vocab-word-back .vocab-word-en').textContent = item.en;
+                    cardWrapper.querySelector('.vocab-card-back .vocab-word-en').textContent = item.en;
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
                 }, 150);
             }
 
@@ -1125,6 +1985,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handles Checking the active question or going to next
     if (lessonActionBtn) {
         lessonActionBtn.addEventListener('click', () => {
+            if (!activeLesson) {
+                // At the end screen, close
+                if (lessonOverlay) lessonOverlay.style.display = 'none';
+                return;
+            }
             const slide = activeLesson.slides[currentSlideIdx];
             if (!slide) {
                 // At the end screen, close
@@ -1317,14 +2182,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    /* ---------------------------------------------------
-     * ACHIEVEMENTS BADGES PANEL
-     * --------------------------------------------------- */
     const achievementsList = [
         { id: 'first_step', name: 'Первые шаги', desc: 'Завершите 1 урок в RusGo', target: 1, type: 'lessons', icon: 'award', color: '#FBBF24' },
+        { id: 'lessons_10', name: 'Прилежный ученик', desc: 'Завершите 10 уроков в RusGo', target: 10, type: 'lessons', icon: 'book-open', color: '#34D399' },
+        { id: 'lessons_30', name: 'Мастер RusGo', desc: 'Завершите все 30 уроков', target: 30, type: 'lessons', icon: 'trophy', color: '#F59E0B' },
+        
+        { id: 'branch_conversational', name: 'Собеседник', desc: 'Пройдите всю ветку «Разговорный»', target: 10, type: 'branch_conversational', icon: 'messages-square', color: '#60A5FA' },
+        { id: 'branch_grammar', name: 'Грамотей', desc: 'Пройдите всю ветку «Грамматика»', target: 10, type: 'branch_grammar', icon: 'book', color: '#A78BFA' },
+        { id: 'branch_culture', name: 'Эрудит', desc: 'Пройдите всю ветку «Культура»', target: 10, type: 'branch_culture', icon: 'compass', color: '#F472B6' },
+
+        { id: 'streak_3', name: 'Старт серии', desc: 'Серия занятий 3+ дня подряд', target: 3, type: 'streak', icon: 'zap', color: '#FB923C' },
         { id: 'streak_7', name: 'Стабильность', desc: 'Серия занятий 7+ дней подряд', target: 7, type: 'streak', icon: 'flame', color: '#EF4444' },
-        { id: 'gems_130', name: 'Кладоискатель', desc: 'Соберите 130+ кристаллов', target: 130, type: 'gems', icon: 'gem', color: '#3B82F6' },
-        { id: 'xp_100', name: 'Отличник', desc: 'Наберите 100 XP на платформе', target: 100, type: 'xp', icon: 'graduation-cap', color: '#8B5CF6' }
+        { id: 'streak_15', name: 'Неудержимый', desc: 'Серия занятий 15+ дней подряд', target: 15, type: 'streak', icon: 'shield', color: '#DC2626' },
+
+        { id: 'gems_150', name: 'Копилка', desc: 'Соберите 150+ кристаллов', target: 150, type: 'gems', icon: 'gem', color: '#3B82F6' },
+        { id: 'gems_300', name: 'Сокровищница', desc: 'Соберите 300+ кристаллов', target: 300, type: 'gems', icon: 'coins', color: '#FCD34D' },
+
+        { id: 'xp_100', name: 'Отличник', desc: 'Наберите 100 XP на платформе', target: 100, type: 'xp', icon: 'graduation-cap', color: '#8B5CF6' },
+        { id: 'xp_500', name: 'Ученый', desc: 'Наберите 500 XP на платформе', target: 500, type: 'xp', icon: 'library', color: '#EC4899' },
+        { id: 'xp_1000', name: 'Академик', desc: 'Наберите 1000 XP на платформе', target: 1000, type: 'xp', icon: 'crown', color: '#FBBF24' }
     ];
 
     function renderAchievements() {
@@ -1340,6 +2216,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (ach.type === 'streak') val = state.streak;
             if (ach.type === 'gems') val = state.gems;
             if (ach.type === 'xp') val = state.xp;
+            
+            if (ach.type === 'branch_conversational') {
+                val = (state.lessonsCompleted || []).filter(id => id >= 101 && id <= 110).length;
+            }
+            if (ach.type === 'branch_grammar') {
+                val = (state.lessonsCompleted || []).filter(id => id >= 201 && id <= 210).length;
+            }
+            if (ach.type === 'branch_culture') {
+                val = (state.lessonsCompleted || []).filter(id => id >= 301 && id <= 310).length;
+            }
 
             const isUnlocked = val >= ach.target;
             const progressPercent = Math.min((val / ach.target) * 100, 100);
@@ -1732,73 +2618,171 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function loadAppStep(stepKey) {
-        currentStep = stepKey;
-        const stepData = chatData[currentTopic][stepKey];
-        if (!stepData) return;
+    let appChatHistory = [];
 
-        // Reset user options
-        appQuickReplies.innerHTML = '';
-        appTypingIndicator.style.display = 'flex';
-        appChatBody.scrollTop = appChatBody.scrollHeight;
+    const systemPrompts = {
+        food: "You are Anna, a friendly Russian waiter at the restaurant 'Теремок'. Speak only Russian. Keep responses simple and short (1-3 sentences). Always respond in JSON format with fields: 'reply' (your response in Russian), 'has_mistake' (true if user made any grammatical, spelling, or punctuation error in Russian, false otherwise), and 'correction' (the user's message corrected in Russian, or empty string if correct).",
+        shopping: "You are Anna, a friendly assistant in a Russian clothing shop in Moscow. Speak only Russian. Keep responses simple and short (1-3 sentences). Always respond in JSON format with fields: 'reply' (your response in Russian), 'has_mistake' (true if user made any grammatical, spelling, or punctuation error in Russian, false otherwise), and 'correction' (the user's message corrected in Russian, or empty string if correct).",
+        travel: "You are Anna, a friendly passport control officer at Sheremetyevo Airport. Speak only Russian. Keep responses simple and short (1-3 sentences). Always respond in JSON format with fields: 'reply' (your response in Russian), 'has_mistake' (true if user made any grammatical, spelling, or punctuation error in Russian, false otherwise), and 'correction' (the user's message corrected in Russian, or empty string if correct).",
+        interview: "You are Anna, a friendly HR specialist interviewing the candidate for a Frontend Developer role. Speak only Russian. Keep responses simple and short (1-3 sentences). Always respond in JSON format with fields: 'reply' (your response in Russian), 'has_mistake' (true if user made any grammatical, spelling, or punctuation error in Russian, false otherwise), and 'correction' (the user's message corrected in Russian, or empty string if correct)."
+    };
 
-        // Auto TTS pronunciation if enabled
-        if (senderVoiceActive() && stepKey === 'start') {
-            speakRussianText(stepData.text);
+    const starterData = {
+        food: {
+            text: "Привет! Добро пожаловать в ресторан «Теремок». Что бы вы хотели сегодня заказать?",
+            options: [
+                "Здравствуйте! Я хочу заказать борщ и блины.",
+                "Здравствуйте! Дайте мне меню, пожалуйста."
+            ]
+        },
+        shopping: {
+            text: "Здравствуйте! Чем я могу помочь вам сегодня в нашем магазине? Ищете что-то конкретное?",
+            options: [
+                "Привет! Я ищу теплую куртку.",
+                "Здравствуйте, я просто смотрю."
+            ]
+        },
+        travel: {
+            text: "Добрый день! Рада приветствовать вас в аэропорту. Куда вы сегодня летите? Приготовьте ваш паспорт.",
+            options: [
+                "Добрый день! Я лечу в Санкт-Петербург. Вот мой паспорт.",
+                "Привет! А где стойка регистрации на рейс 102?"
+            ]
+        },
+        interview: {
+            text: "Здравствуйте! Спасибо, что пришли на собеседование. Расскажите немного о себе и вашем опете работы с веб-технологиями?",
+            options: [
+                "Здравствуйте! Я разрабатываю интерфейсы на JavaScript и React.",
+                "Привет! Мой опыт работы программистом — два года."
+            ]
         }
-
-        setTimeout(() => {
-            appTypingIndicator.style.display = 'none';
-
-            let isCorrection = false;
-            let correctText = "";
-            if (currentTopic === 'food' && stepKey === 'borsch') {
-                isCorrection = true;
-                correctText = "Я хочу заказать борщ";
-            } else if (currentTopic === 'interview' && stepKey === 'dev') {
-                isCorrection = true;
-                correctText = "Я разработчик интерфейсов";
-            }
-
-            appendAppMessage(stepData.text, 'tutor', isCorrection, correctText);
-            
-            // Speak Anna's response
-            if (senderVoiceActive()) {
-                speakRussianText(stepData.text);
-            }
-
-            // Options
-            if (stepData.options && stepData.options.length > 0) {
-                stepData.options.forEach(opt => {
-                    const btn = document.createElement('button');
-                    btn.className = 'reply-chip';
-                    btn.textContent = opt.text;
-                    btn.addEventListener('click', () => {
-                        appendAppMessage(opt.text, 'user');
-                        loadAppStep(opt.next);
-                    });
-                    appQuickReplies.appendChild(btn);
-                });
-            } else {
-                const restartBtn = document.createElement('button');
-                restartBtn.className = 'reply-chip';
-                restartBtn.innerHTML = '🔄 Начать сначала';
-                restartBtn.addEventListener('click', () => {
-                    resetAppChat(currentTopic);
-                });
-                appQuickReplies.appendChild(restartBtn);
-            }
-        }, 1100);
-    }
+    };
 
     function senderVoiceActive() {
         return state.ttsEnabled;
     }
 
+    async function sendAppUserMessage(text) {
+        if (!text.trim()) return;
+        appendAppMessage(text, 'user');
+        appChatHistory.push({ role: "user", content: text });
+
+        // Show typing indicator
+        if (appTypingIndicator) appTypingIndicator.style.display = 'flex';
+        if (appChatBody) appChatBody.scrollTop = appChatBody.scrollHeight;
+
+        // Clear quick replies
+        if (appQuickReplies) appQuickReplies.innerHTML = '';
+
+        const url = `${API_URL}/api/chat`;
+
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    messages: appChatHistory
+                })
+            });
+
+            if (!response.ok) throw new Error("Groq API request failed");
+            
+            const data = await response.json();
+            const content = data.choices[0].message.content;
+            let result;
+            try {
+                result = JSON.parse(content);
+            } catch(e) {
+                result = { reply: content, has_mistake: false, correction: "" };
+            }
+
+            if (appTypingIndicator) appTypingIndicator.style.display = 'none';
+
+            appendAppMessage(result.reply, 'tutor', result.has_mistake, result.correction);
+            appChatHistory.push({ role: "assistant", content: content });
+
+            if (senderVoiceActive()) {
+                speakRussianText(result.reply);
+            }
+
+            // Offer a reset chat option in helper chips
+            renderResetChip();
+
+        } catch (error) {
+            console.error("Chat with Anna error:", error);
+            if (appTypingIndicator) appTypingIndicator.style.display = 'none';
+            appendAppMessage("Извините, возникла проблема с подключением к ИИ-наставнику. Пожалуйста, проверьте интернет или попробуйте позже.", 'tutor');
+            renderResetChip();
+        }
+    }
+
+    function renderResetChip() {
+        if (!appQuickReplies) return;
+        appQuickReplies.innerHTML = '';
+        const restartBtn = document.createElement('button');
+        restartBtn.className = 'reply-chip';
+        restartBtn.innerHTML = '🔄 Начать сначала';
+        restartBtn.addEventListener('click', () => {
+            resetAppChat(currentTopic);
+        });
+        appQuickReplies.appendChild(restartBtn);
+    }
+
     function resetAppChat(topic) {
         currentTopic = topic;
         if (appChatBody) appChatBody.innerHTML = '';
-        loadAppStep('start');
+        if (appQuickReplies) appQuickReplies.innerHTML = '';
+
+        const systemPrompt = systemPrompts[topic] || systemPrompts.food;
+        const starter = starterData[topic] || starterData.food;
+
+        // Initialize history
+        appChatHistory = [
+            { role: "system", content: systemPrompt },
+            { role: "assistant", content: JSON.stringify({ reply: starter.text, has_mistake: false, correction: "" }) }
+        ];
+
+        // Append initial message
+        appendAppMessage(starter.text, 'tutor');
+
+        // Play initial message speech if TTS enabled
+        if (senderVoiceActive()) {
+            speakRussianText(starter.text);
+        }
+
+        // Render initial helper chips
+        starter.options.forEach(optText => {
+            const btn = document.createElement('button');
+            btn.className = 'reply-chip';
+            btn.textContent = optText;
+            btn.addEventListener('click', () => {
+                sendAppUserMessage(optText);
+            });
+            appQuickReplies.appendChild(btn);
+        });
+    }
+
+    // Bind custom text input event listeners
+    const appChatInput = document.getElementById('appChatInput');
+    const appSendChatBtn = document.getElementById('appSendChatBtn');
+
+    if (appSendChatBtn && appChatInput) {
+        const handleSend = () => {
+            const text = appChatInput.value;
+            if (text.trim()) {
+                sendAppUserMessage(text);
+                appChatInput.value = '';
+            }
+        };
+
+        appSendChatBtn.addEventListener('click', handleSend);
+        appChatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleSend();
+            }
+        });
     }
 
 

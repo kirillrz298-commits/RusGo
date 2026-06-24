@@ -866,6 +866,20 @@
                         <h2>Твоя траектория обучения</h2>
                         <p>Нажимай на активные уровни для запуска интерактивных уроков</p>
                     </div>
+                    <div class="branch-selector-container">
+                        <button class="branch-tab-btn active" data-branch="conversational">
+                            <i data-lucide="messages-square" class="branch-icon"></i>
+                            <span>Разговорный</span>
+                        </button>
+                        <button class="branch-tab-btn" data-branch="grammar">
+                            <i data-lucide="book" class="branch-icon"></i>
+                            <span>Грамматика</span>
+                        </button>
+                        <button class="branch-tab-btn" data-branch="culture">
+                            <i data-lucide="compass" class="branch-icon"></i>
+                            <span>Культура</span>
+                        </button>
+                    </div>
                     <div class="interactive-path-board glass">
                         <div class="path-scrolling-area">
                             <div class="vertical-path-line">
@@ -943,9 +957,11 @@
                                 <div class="quick-replies" id="appQuickReplies">
                                     <!-- Options -->
                                 </div>
-                                <div class="chat-input-placeholder">
-                                    <span class="placeholder-text">Выберите ответ выше для отправки...</span>
-                                    <button class="mic-btn"><i data-lucide="mic"></i></button>
+                                <div class="chat-input-container">
+                                    <input type="text" id="appChatInput" placeholder="Напишите сообщение Анне на русском..." autocomplete="off">
+                                    <button class="send-btn" id="appSendChatBtn" title="Отправить">
+                                        <i data-lucide="send"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
