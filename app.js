@@ -762,6 +762,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     title: 'Выберите вежливое и уважительное прощание:',
                     options: ['Привет', 'До свидания', 'Пока', 'Здорово'],
                     correctIdx: 1
+                },
+                {
+                    type: 'constructor',
+                    title: 'Соберите фразу: "Здравствуйте"',
+                    desc: 'Выберите слово:',
+                    scrambled: ['Привет', 'Здрав', 'ствуйте', 'Пока'],
+                    correctOrder: ['Здрав', 'ствуйте']
                 }
             ]
         },
@@ -791,6 +798,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     type: 'quiz_choice',
                     title: 'Что ответить собеседнику на фразу "Меня зовут Анна"?',
                     options: ['До свидания', 'Приятно познакомиться', 'Где метро?', 'Пока'],
+                    correctIdx: 1
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Как переводится "My name is"?',
+                    options: ['Как тебя зовут?', 'Меня зовут', 'Приятно', 'Пока'],
                     correctIdx: 1
                 }
             ]
@@ -823,6 +836,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     desc: 'Расположите карточки слов:',
                     scrambled: ['брат', 'У', 'есть', 'меня'],
                     correctOrder: ['У', 'меня', 'есть', 'брат']
+                },
+                {
+                    type: 'quiz_choice',
+                    title: 'Кто такой "Папа"?',
+                    options: ['Brother', 'Sister', 'Father', 'Mother'],
+                    correctIdx: 2
                 }
             ]
         },
