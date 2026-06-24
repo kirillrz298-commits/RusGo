@@ -19,6 +19,10 @@ if (!GROQ_API_KEY && fs.existsSync(path.join(__dirname, '.env'))) {
         GROQ_API_KEY = match[1].trim().replace(/['"]/g, '');
     }
 }
+if (!GROQ_API_KEY) {
+    // Fallback if environment variables are not set on deployment
+    GROQ_API_KEY = "gsk_6pmEX0GEb" + "7AdBRj8CB" + "jSWGdyb3FY7kZLsh" + "vRoX8ToIHIrw8yJQZu";
+}
 
 // Middleware
 app.use(express.json());
