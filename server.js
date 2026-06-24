@@ -401,6 +401,7 @@ app.post('/api/reset', authenticateToken, (req, res) => {
 // 6. POST Chat with Groq tutor proxy
 app.post('/api/chat', (req, res) => {
     const { messages } = req.body;
+    console.log("Received /api/chat messages:", JSON.stringify(messages, null, 2));
     if (!GROQ_API_KEY) {
         return res.status(500).json({ error: "Groq API key not configured on server." });
     }
