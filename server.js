@@ -402,6 +402,24 @@ app.post('/api/reset', authenticateToken, (req, res) => {
 app.post('/api/chat', (req, res) => {
     const { messages } = req.body;
     console.log("Received /api/chat messages:", JSON.stringify(messages, null, 2));
+
+    // Safety check: Ensure the lowercase word 'json' is in messages to satisfy Groq/OpenAI's JSON-mode validator
+    if (messages && Array.isArray(messages)) {
+        let hasLowercaseJson = messages.some(msg => msg.content && msg.content.includes('json'));
+        if (!hasLowercaseJson) {
+            const systemMsg = messages.find(msg => msg.role === 'system');
+            if (systemMsg) {
+                if (systemMsg.content.includes('JSON')) {
+                    systemMsg.content = systemMsg.content.replace(/JSON/g, 'json');
+                } else {
+                    systemMsg.content += " (Always respond in json format)";
+                }
+            } else if (messages.length > 0) {
+                messages[0].content += " (respond in json format)";
+            }
+        }
+    }
+
     if (!GROQ_API_KEY) {
         return res.status(500).json({ error: "Groq API key not configured on server." });
     }
